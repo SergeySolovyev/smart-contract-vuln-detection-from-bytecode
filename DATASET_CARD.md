@@ -20,7 +20,7 @@ source_datasets:
 
 # EVM Bytecode 65-Feature Matrix (117 K, Slither-Labelled)
 
-Derived dataset for the ICICPE 2026 paper *"Lightweight Machine Learning
+Derived dataset for the paper *"Lightweight Machine Learning
 for Smart-Contract Vulnerability Detection from EVM Bytecode"* by
 S. S. Solovev. Each row is a smart contract represented by **67
 numerical features** (65 base + 2 aggregated risk indicators) extracted
@@ -109,12 +109,13 @@ print(train.shape, val.shape)  # (105027, 67+labels)  (11670, ...)
 ## Citation
 
 ```bibtex
-@inproceedings{solovev2026icicpe,
+@misc{solovev2026smartcontract,
   author = {S. S. Solovev},
   title  = {Lightweight Machine Learning for Smart-Contract Vulnerability
-            Detection from EVM Bytecode},
-  booktitle = {Proc. ICICPE 2026},
-  year   = {2026}
+            Detection from {EVM} Bytecode: Binary and Multi-Label
+            Classification with a Deep-Learning Comparator},
+  year   = {2026},
+  note   = {Preprint}
 }
 ```
 

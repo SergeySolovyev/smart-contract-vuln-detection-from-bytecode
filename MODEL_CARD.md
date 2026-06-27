@@ -44,13 +44,13 @@ from raw EVM bytecode — **no source code required**. Pipelines a
 65-feature bytecode-disassembly extractor into a Random Forest (binary)
 or XGBoost (multi-label) classifier.
 
-This is the model release accompanying the ICICPE 2026 paper:
+This is the model release accompanying the paper:
 
 > **S. S. Solovev (2026)**. *Lightweight Machine Learning for
 > Smart-Contract Vulnerability Detection from EVM Bytecode: Binary and
-> Multi-Label Classification with a Deep-Learning Comparator.* ICICPE 2026
+> Multi-Label Classification with a Deep-Learning Comparator.*
 > (Chiang Mai, Thailand).
-> [Paper repo](https://github.com/SergeySolovyev/icicpe-2026-defi-vuln-detection)
+> [Paper repo](https://github.com/SergeySolovyev/smart-contract-vuln-detection-from-bytecode)
 
 ## Headline numbers
 
@@ -141,23 +141,21 @@ See the paper for full discussion (§Threats to Validity).
 
 | Artefact | URL |
 |---|---|
-| Paper repo (LaTeX source) | https://github.com/SergeySolovyev/icicpe-2026-defi-vuln-detection |
-| Kaggle notebook (end-to-end) | https://www.kaggle.com/code/sergeisolovyev/icicpe-2026-defi-vuln-detection |
+| Paper repo (LaTeX source) | https://github.com/SergeySolovyev/smart-contract-vuln-detection-from-bytecode |
+| Kaggle notebook (end-to-end) | https://www.kaggle.com/code/sergeisolovyev/smart-contract-vuln-detection-from-bytecode |
 | Raw dataset | https://huggingface.co/datasets/mwritescode/slither-audited-smart-contracts |
 | W&B ablation run | project `defi-binary-vuln`, run `hk57ndy1` |
 
 ## Citation
 
 ```bibtex
-@inproceedings{solovev2026icicpe,
-  author    = {S. S. Solovev},
-  title     = {Lightweight Machine Learning for Smart-Contract Vulnerability
-               Detection from {EVM} Bytecode: Binary and Multi-Label
-               Classification with a Deep-Learning Comparator},
-  booktitle = {Proc. 10th Int. Conf. on Interdisciplinary Research on
-               Computer Science, Psychology, and Education (ICICPE 2026)},
-  year      = {2026},
-  address   = {Chiang Mai, Thailand}
+@misc{solovev2026smartcontract,
+  author = {S. S. Solovev},
+  title  = {Lightweight Machine Learning for Smart-Contract Vulnerability
+            Detection from {EVM} Bytecode: Binary and Multi-Label
+            Classification with a Deep-Learning Comparator},
+  year   = {2026},
+  note   = {Preprint}
 }
 ```
 
