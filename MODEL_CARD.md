@@ -58,7 +58,7 @@ This is the model release accompanying the paper:
 |-------------|------------------|-------|------|-------|
 | Binary      | RandomForest     | **0.947** | 0.82 | 5.2%  |
 | Binary      | XGBoost (Optuna) | 0.943 | 0.81 | 5.6%  |
-| Multi-label | XGBoost (macro)  | **0.751** | —    | —     |
+| Multi-label | XGBoost (macro)  | **0.775** | —    | —     |
 
 All numbers on a stratified 90/10 split (seed 376) of 117,091
 Slither-labelled contracts. Bootstrap CIs reported in the paper.
