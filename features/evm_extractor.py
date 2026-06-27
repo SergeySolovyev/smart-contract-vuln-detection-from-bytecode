@@ -9,14 +9,14 @@ import pandas as pd
 
 class EVMBytecodeFeatureExtractor(BaseEstimator, TransformerMixin):
     """
-    Трансформер признаков из EVM-байткода для задач детекции уязвимостей смарт-контрактов.
+    Feature transformer from EVM bytecode for smart-contract vulnerability detection.
     """
     def __init__(self, bytecode_column="bytecode", n_workers=None):
         self.bytecode_column = bytecode_column
         self.n_workers = n_workers
-        # Фиксированный список всех выходных признаков
+        # Fixed list of all output features
         self.feature_names_ = [
-            # Базовые
+            # Basic
             "total_instructions", "unique_instructions",
             # Block dependence
             "block_dependent_count", "block_dependency_index",
@@ -65,7 +65,7 @@ class EVMBytecodeFeatureExtractor(BaseEstimator, TransformerMixin):
         ]
 
     def _extract_features_single(self, bytecode) -> dict:
-        """Извлечение признаков из одного байткода (hex-строка или bytes)"""
+        """Extract features from a single bytecode (hex string or bytes)"""
         if isinstance(bytecode, str):
             bytecode = bytecode.strip()
             if bytecode.startswith("0x"):
@@ -88,17 +88,17 @@ class EVMBytecodeFeatureExtractor(BaseEstimator, TransformerMixin):
         if n == 0:
             return {name: 0.0 for name in self.feature_names_}
 
-        # Частотный счётчик мнемоник
+        # Mnemonic frequency counter
         mnemonic_counter = Counter(instr.mnemonic for instr in instructions)
 
-        # Списки для быстрых проверок
+        # Lookup sets for fast membership checks
         block_dependent = {"TIMESTAMP", "NUMBER", "DIFFICULTY", "GASLIMIT", "COINBASE", "BLOCKHASH"}
         call_ops = {"CALL", "DELEGATECALL", "STATICCALL", "CALLCODE"}
         arithmetic_ops = {"ADD", "SUB", "MUL", "DIV", "MOD", "SDIV", "SMOD", "EXP", "SIGNEXTEND"}
         dangerous_ops = block_dependent.union(call_ops).union(arithmetic_ops).union({"SELFDESTRUCT"})
         randomness_ops = {"BLOCKHASH", "TIMESTAMP", "DIFFICULTY", "COINBASE"}
 
-        # Базовые агрегаты
+        # Basic aggregates
         total_instructions = n
         unique_instructions = len(mnemonic_counter)
 
@@ -117,9 +117,9 @@ class EVMBytecodeFeatureExtractor(BaseEstimator, TransformerMixin):
         calldata_copy = mnemonic_counter.get("CALLDATACOPY", 0)
 
         external_call_count = sum(mnemonic_counter.get(op, 0) for op in call_ops)
-        gas_ops = mnemonic_counter.get("GAS", 0)  # часто перед CALL
+        gas_ops = mnemonic_counter.get("GAS", 0)  # often precedes CALL
 
-        # Агрегаты по атрибутам инструкций
+        # Aggregates over instruction attributes
         pushes = sum(getattr(instr, "pushes", 0) for instr in instructions)
         pops = sum(getattr(instr, "pops", 0) for instr in instructions)
         fees = [getattr(instr, "fee", 0) for instr in instructions]
@@ -129,11 +129,11 @@ class EVMBytecodeFeatureExtractor(BaseEstimator, TransformerMixin):
         max_gas = max(fees) if fees else 0
         high_gas_count = sum(f > 1000 for f in fees)
 
-        # Простые паттерны на основе PC (с оговоркой: не идеально из-за JUMP, но как эвристика)
+        # Simple PC-based patterns (heuristic; imperfect under JUMP, but informative)
         arithmetic_ops_set = {"ADD", "SUB", "MUL", "DIV", "MOD", "SDIV", "SMOD", "EXP", "SIGNEXTEND"}
         target_mnemonics = {"SSTORE", "CALL", "DELEGATECALL", "STATICCALL", "CALLCODE", "BALANCE", "JUMPI"} | arithmetic_ops_set
 
-        # Только те, что есть в контракте
+        # Keep only those present in the contract
         target_mnemonics = target_mnemonics & mnemonic_counter.keys()
 
         pcs = {
@@ -169,7 +169,7 @@ class EVMBytecodeFeatureExtractor(BaseEstimator, TransformerMixin):
                             balance_before_call = 1
                             break
 
-        # Собираем словарь признаков
+        # Assemble the feature dictionary
         features = {
             "total_instructions": total_instructions,
             "unique_instructions": unique_instructions,
@@ -225,7 +225,7 @@ class EVMBytecodeFeatureExtractor(BaseEstimator, TransformerMixin):
             "opcode_entropy": entropy(list(mnemonic_counter.values())) if len(mnemonic_counter) > 1 else 0.0,
         }
 
-        # Композитные скоринги
+        # Composite risk scores
         reentrancy_score = (
             features["external_call_count"] +
             features["call_value_ops"] +
@@ -270,7 +270,7 @@ class EVMBytecodeFeatureExtractor(BaseEstimator, TransformerMixin):
             "has_dos_vulnerabilities": int(features["gas_dos_risk_index"] > 0.1),
         })
 
-        # Гарантируем полный набор признаков
+        # Guarantee the full, ordered feature set
         return {name: features.get(name, 0.0) for name in self.feature_names_}
 
     def fit(self, X, y=None):
