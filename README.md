@@ -109,50 +109,27 @@ where tree-based models systematically outperform deep nets
 The Kaggle notebook is the executable reproducibility entry point — feature
 extraction, training, all four classical binary classifiers, the
 ten-configuration Conv-Transformer ablation, and figure generation all run
-end-to-end there. This repository contains the LaTeX paper source and the
-local post-processing scripts.
+end-to-end there. This repository ships the model and dataset cards plus the bytecode
+feature-extractor (`features/evm_extractor.py`); the full LaTeX paper source,
+figures, and end-to-end training all live in the Kaggle notebook above.
 
 ## Repository structure
 
 ```
 .
-├── paper.pdf                   # paper PDF (blind, 7 pp)
-├── main.tex                    # LaTeX source
-├── references.bib              # bibliography (26 entries)
-├── icicpe.sty                  # LaTeX class file
-├── ICICPEtran.bst              # bibliography style
-├── figures/
-│   ├── feature_categories_donut.pdf   # Fig 1 — 65-feature SWC grouping
-│   ├── pareto_classical_vs_dl.pdf     # Fig 2 — compute/accuracy Pareto
-│   ├── perlabel_f1_heatmap.pdf        # Fig 3 — per-class F1 across 13 configs
-│   └── make_pareto_v2.py              # Pareto regeneration script
-├── scripts/
-│   ├── paired_class_test.py           # sign-test + Wilcoxon on class-level F1
-│   └── full_ablation_analysis.py      # 14-run aggregation + heatmap rebuild
-└── README.md                          # this file
+├── MODEL_CARD.md          # model release card (architecture, metrics, limits)
+├── DATASET_CARD.md        # derived-dataset card (provenance, splits, licence)
+├── features/
+│   └── evm_extractor.py   # 65-feature EVM-bytecode extractor (pyevmasm)
+├── LICENSE                # MIT (code) / CC-BY 4.0 (text)
+└── README.md              # this file
 ```
 
-## Build the paper locally
+## Reproduce everything
 
-```bash
-pdflatex -interaction=nonstopmode main.tex
-bibtex main
-pdflatex -interaction=nonstopmode main.tex
-pdflatex -interaction=nonstopmode main.tex
-```
-
-Requires a TeX distribution (MiKTeX or TeX Live) with `hyperref`, `amsmath`,
-`booktabs`, `graphicx`, `wrapfig`, `footmisc`, and `url`.
-
-## Reproduce statistical tests
-
-```bash
-python scripts/paired_class_test.py        # XGB vs DL_B1 / DL_A1
-python scripts/full_ablation_analysis.py   # full 14-run ablation rebuild + heatmap
-```
-
-Both scripts read W&B-exported per-class F1 vectors and emit the
-sign-test, Wilcoxon, and macro-F1-gap numbers cited in §6.
+Open the Kaggle notebook linked above and **Run All** — feature extraction,
+the four classical binary classifiers, the 14-run Conv-Transformer ablation,
+the statistical tests, and every figure regenerate end-to-end on a seeded run.
 
 ## Citation
 
