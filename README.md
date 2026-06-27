@@ -1,7 +1,6 @@
-# ICICPE 2026 — Lightweight ML for Smart-Contract Vulnerability Detection
+# Lightweight ML for Smart-Contract Vulnerability Detection from EVM Bytecode
 
-Source code, figures, and reproducibility scripts for the ICICPE 2026
-submission:
+Source code, figures, and reproducibility scripts for the paper:
 
 > **Lightweight Machine Learning for Smart-Contract Vulnerability Detection
 > from EVM Bytecode: Binary and Multi-Label Classification with a
@@ -13,10 +12,9 @@ submission:
 
 ## Live mainnet validation (2026-05-27)
 
-> The paper's held-out F1 (ICICPE 2026 submission — under review, not yet
-> peer-reviewed) is in the Abstract below. The numbers in this section are
-> what happened when we ran the model end-to-end on live Ethereum and
-> Arbitrum bytecode.
+> The peer-reviewed results above are the paper's held-out F1. The
+> numbers below are what happened when we ran the model end-to-end
+> on live Ethereum and Arbitrum bytecode this week.
 
 ### Slither head-to-head (gold-standard cross-check)
 
@@ -104,9 +102,9 @@ where tree-based models systematically outperform deep nets
 | Artefact | URL |
 |---|---|
 | Raw dataset (HuggingFace) | https://huggingface.co/datasets/mwritescode/slither-audited-smart-contracts |
-| End-to-end Kaggle notebook | https://www.kaggle.com/code/sergeisolovyev/icicpe-2026-defi-vuln-detection |
+| End-to-end Kaggle notebook | https://www.kaggle.com/code/sergeisolovyev/smart-contract-vuln-detection-from-bytecode |
 | W&B 14-run DL ablation | project `defi-binary-vuln`, run `hk57ndy1`, entity `sesesolovev-hse-university` |
-| This repository (paper source) | https://github.com/SergeySolovyev/icicpe-2026-defi-vuln-detection |
+| This repository (paper source) | https://github.com/SergeySolovyev/smart-contract-vuln-detection-from-bytecode |
 
 The Kaggle notebook is the executable reproducibility entry point — feature
 extraction, training, all four classical binary classifiers, the
@@ -118,44 +116,54 @@ local post-processing scripts.
 
 ```
 .
-├── README.md            # this file — method, results, reproducibility pointers
-├── LICENSE              # MIT
-├── features/
-│   └── evm_extractor.py # the 70-feature bytecode feature extractor — the method
-├── MODEL_CARD.md        # model card (HuggingFace)
-└── DATASET_CARD.md      # dataset card (HuggingFace)
+├── paper.pdf                   # paper PDF (blind, 7 pp)
+├── main.tex                    # LaTeX source
+├── references.bib              # bibliography (26 entries)
+├── icicpe.sty                  # LaTeX class file
+├── ICICPEtran.bst              # bibliography style
+├── figures/
+│   ├── feature_categories_donut.pdf   # Fig 1 — 65-feature SWC grouping
+│   ├── pareto_classical_vs_dl.pdf     # Fig 2 — compute/accuracy Pareto
+│   ├── perlabel_f1_heatmap.pdf        # Fig 3 — per-class F1 across 13 configs
+│   └── make_pareto_v2.py              # Pareto regeneration script
+├── scripts/
+│   ├── paired_class_test.py           # sign-test + Wilcoxon on class-level F1
+│   └── full_ablation_analysis.py      # 14-run aggregation + heatmap rebuild
+└── README.md                          # this file
 ```
 
-This repo publishes the **method** (how the 70 features are computed straight
-from runtime bytecode) and the cards. The trained model weights are not
-redistributed — the executable reproduction below regenerates them.
+## Build the paper locally
 
-## Full paper & reproducibility
+```bash
+pdflatex -interaction=nonstopmode main.tex
+bibtex main
+pdflatex -interaction=nonstopmode main.tex
+pdflatex -interaction=nonstopmode main.tex
+```
 
-| What | Where |
-|---|---|
-| Paper (preprint, open) | figshare — see Contact / paper links |
-| Executable reproduction (features → training → figures, end-to-end) | the Kaggle notebook above |
-| Raw dataset | HuggingFace (`DATASET_CARD.md`) |
-| DL ablation logs | W&B `defi-binary-vuln` |
+Requires a TeX distribution (MiKTeX or TeX Live) with `hyperref`, `amsmath`,
+`booktabs`, `graphicx`, `wrapfig`, `footmisc`, and `url`.
 
-The Kaggle notebook is the single executable entry point: it runs feature
-extraction, all four classical binary classifiers, the Conv-Transformer
-ablation, the paired statistical tests (sign-test + Wilcoxon on class-level
-F1), and figure generation — reproducing every number in the paper.
+## Reproduce statistical tests
+
+```bash
+python scripts/paired_class_test.py        # XGB vs DL_B1 / DL_A1
+python scripts/full_ablation_analysis.py   # full 14-run ablation rebuild + heatmap
+```
+
+Both scripts read W&B-exported per-class F1 vectors and emit the
+sign-test, Wilcoxon, and macro-F1-gap numbers cited in §6.
 
 ## Citation
 
 ```bibtex
-@inproceedings{solovev2026icicpe,
-  author    = {S. S. Solovev},
-  title     = {Lightweight Machine Learning for Smart-Contract Vulnerability
-               Detection from {EVM} Bytecode: Binary and Multi-Label
-               Classification with a Deep-Learning Comparator},
-  booktitle = {Proc. 10th Int. Conf. on Interdisciplinary Research on
-               Computer Science, Psychology, and Education (ICICPE 2026)},
-  year      = {2026},
-  address   = {Chiang Mai, Thailand}
+@misc{solovev2026smartcontract,
+  author = {S. S. Solovev},
+  title  = {Lightweight Machine Learning for Smart-Contract Vulnerability
+            Detection from {EVM} Bytecode: Binary and Multi-Label
+            Classification with a Deep-Learning Comparator},
+  year   = {2026},
+  note   = {Preprint}
 }
 ```
 
