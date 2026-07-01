@@ -1,0 +1,96 @@
+{
+  "dataset": {
+    "name": "mwritescode/slither-audited-smart-contracts",
+    "n_contracts_after_deduplication": 117091,
+    "train_size": 105027,
+    "validation_size": 11670,
+    "split": "stratified 90/10 by binary any-vulnerability label",
+    "split_seed": 376,
+    "deduplication": "exact bytecode-hash duplicates removed before split",
+    "label_source": "Slither static-analysis reports"
+  },
+  "binary_any_vulnerability": {
+    "validation_size": 11670,
+    "models": {
+      "LogisticRegression": {
+        "f1": 0.850,
+        "precision": 0.913,
+        "recall": 0.796,
+        "mcc": 0.595,
+        "fnr": 0.204,
+        "pr_auc": 0.951,
+        "train_time_seconds": 4.1
+      },
+      "RandomForest": {
+        "f1": 0.947,
+        "precision": 0.933,
+        "recall": 0.962,
+        "specificity": 0.862,
+        "mcc": 0.826,
+        "fnr": 0.038,
+        "fpr": 0.138,
+        "pr_auc": 0.991,
+        "train_time_seconds": 70.6
+      },
+      "XGBoost_Optuna": {
+        "f1": 0.948,
+        "precision": 0.945,
+        "recall": 0.950,
+        "mcc": 0.832,
+        "fnr": 0.050,
+        "pr_auc": 0.990,
+        "train_time_seconds": 740.0
+      },
+      "CatBoost": {
+        "f1": 0.918,
+        "precision": 0.951,
+        "recall": 0.888,
+        "mcc": 0.761,
+        "fnr": 0.112,
+        "pr_auc": 0.983,
+        "train_time_seconds": 14.3
+      }
+    },
+    "bootstrap": {
+      "n_resamples": 1000,
+      "reported_for": ["f1", "fnr", "pr_auc"],
+      "note": "Confidence intervals are reported in the paper/notebook."
+    }
+  },
+  "multi_label_swc": {
+    "classes": [
+      "access-control",
+      "arithmetic",
+      "bad-randomness",
+      "double-spending",
+      "locked-ether",
+      "other",
+      "reentrancy",
+      "unchecked-calls"
+    ],
+    "models": {
+      "LogisticRegression_balanced": {
+        "macro_f1": 0.4565,
+        "train_time_seconds": 3.0
+      },
+      "RandomForest": {
+        "macro_f1": 0.7739,
+        "wins_vs_best_dl_out_of_8": 5,
+        "train_time_seconds": 65.0
+      },
+      "XGBoost": {
+        "macro_f1": 0.7746,
+        "wins_vs_best_dl_out_of_8": 7,
+        "train_time_seconds": 62.0
+      },
+      "best_ConvTransformer_C2_d256": {
+        "macro_f1": 0.7302,
+        "train_time_seconds": 2118.0
+      },
+      "ConvTransformer_mean_10_configs": {
+        "macro_f1": 0.6968,
+        "train_time_seconds": 1842.0
+      }
+    }
+  }
+}
