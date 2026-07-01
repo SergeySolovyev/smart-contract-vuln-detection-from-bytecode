@@ -21,15 +21,19 @@ model-result caches, and figure-generation cells.
 2. Confirm that the notebook has the following public Kaggle datasets attached:
    `sergeisolovyev/defi-bytecode-features-public` and
    `sergeisolovyev/smart-contract-vuln-run-cache`.
-3. CPU execution is sufficient for the public reviewer rerun with cached
-   records. Enable a GPU/T4 runtime only when launching fresh uncached
-   Conv-Transformer configurations.
-4. Enable internet access if W&B logging or package installation is required.
+3. CPU execution is sufficient for the default public reviewer rerun. The
+   notebook starts with `CACHE_BACKED_REVIEWER_RUN=True`, restores cached model
+   records, and skips fresh SHAP, feature-importance, severity-waterfall, and
+   uncached neural refits.
+4. For a heavier rerun, set `CACHE_BACKED_REVIEWER_RUN=False` in the notebook.
+   Enable a GPU/T4 runtime before launching fresh uncached Conv-Transformer
+   configurations.
+5. Enable internet access if W&B logging or package installation is required.
    W&B credentials are optional; the notebook falls back to local outputs.
-5. Run all cells.
-6. Check the generated `results/reproducibility_summary.json`,
+6. Run all cells.
+7. Check the generated `results/reproducibility_summary.json`,
    `results/feature_columns.json`, and CSV result tables in the Kaggle output.
-7. Compare the regenerated tables against `results/metrics.json`.
+8. Compare the regenerated tables against `results/metrics.json`.
 
 The notebook records:
 
@@ -41,9 +45,10 @@ The notebook records:
 
 The public run cache contains JSON outputs from the binary models, classical
 multi-label baselines, and completed Conv-Transformer configurations. The
-notebook exports `dl_cached_configs`, `dl_expected_configs`, and
-`dl_cache_complete` in `results/reproducibility_summary.json`, so reviewers can
-distinguish a CPU cache-backed rerun from a fresh full neural ablation. Missing
+notebook exports `cache_backed_reviewer_run`, `dl_cached_configs`,
+`dl_expected_configs`, and `dl_cache_complete` in
+`results/reproducibility_summary.json`, so reviewers can distinguish the default
+CPU cache-backed rerun from a fresh full neural ablation. Missing
 Conv-Transformer configurations should be launched only with GPU/T4 enabled and
 then added to a refreshed run-cache dataset.
 
