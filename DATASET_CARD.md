@@ -59,7 +59,7 @@ The binary target is defined as the logical OR of these eight labels.
 
 ## Feature Schema
 
-The released repository extractor emits 70 ordered features. See
+The released repository extractor emits 67 ordered features. See
 [`FEATURE_SCHEMA.md`](FEATURE_SCHEMA.md) for the exact order and group
 counts.
 
