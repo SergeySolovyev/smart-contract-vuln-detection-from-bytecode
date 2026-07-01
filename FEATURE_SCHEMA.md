@@ -6,13 +6,14 @@ tabular feature vector.
 
 ## Current Released Schema
 
-The current extractor emits **70 ordered features**.
+The current extractor emits **67 ordered features**.
 
 The paper describes the representation as a lightweight engineered bytecode
-feature set. In the released code, this is materialised as:
-
-- 65 count, ratio, complexity, and risk-score features;
-- 5 additional binary indicator flags used by the inference schema.
+feature set. For implementation and inference, the authoritative object is
+the 67-column ordered schema below. The manuscript may discuss this as a
+65-feature base representation plus two aggregated indicators, but the model
+interface should always be described and validated against the full exported
+schema.
 
 Any trained model must receive features in exactly the order returned by:
 
@@ -30,7 +31,6 @@ extractor.get_feature_names_out()
 | External-dependency features | 6 |
 | Calldata features | 5 |
 | External-call features | 5 |
-| Memory features | 3 |
 | Stack features | 5 |
 | Gas-analysis features | 5 |
 | Arithmetic features | 3 |
@@ -40,7 +40,7 @@ extractor.get_feature_names_out()
 | Complexity features | 3 |
 | Composite risk scores | 5 |
 | Binary indicator flags | 5 |
-| **Total** | **70** |
+| **Total** | **67** |
 
 ## Ordered Feature Names
 
@@ -75,9 +75,6 @@ has_external_calls
 call_value_ops
 call_gas_limit_ops
 potential_reentrancy_pattern
-reads_from_memory
-writes_to_memory
-memory_access_ratio
 pushes
 pops
 stack_imbalance
@@ -119,7 +116,7 @@ has_dos_vulnerabilities
 
 ## Reviewer Note
 
-If future paper revisions continue to use the shorter "65-feature" wording,
-the manuscript should define whether the five binary indicator flags are
-included in the feature count or treated as derived deployment indicators.
-The repository should not leave this implicit.
+The Kaggle parquet feature matrix uses the same 67 feature names in the same
+order. The manuscript can describe the method as a 65-feature base
+representation plus two aggregated indicators, but model artefacts should
+refer to the full 67-column inference schema.
