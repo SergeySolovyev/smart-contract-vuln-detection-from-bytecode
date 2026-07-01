@@ -34,8 +34,6 @@ class EVMBytecodeFeatureExtractor(BaseEstimator, TransformerMixin):
             # External calls
             "external_call_count", "has_external_calls", "call_value_ops",
             "call_gas_limit_ops", "potential_reentrancy_pattern",
-            # Memory
-            "reads_from_memory", "writes_to_memory", "memory_access_ratio",
             # Stack
             "pushes", "pops", "stack_imbalance", "stack_operations_ratio",
             "stack_underflow_risk",
