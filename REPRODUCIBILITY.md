@@ -16,17 +16,30 @@ matrices, cached deep-learning ablation runs, and figure-generation cells.
 ## Recommended Full Rerun
 
 1. Open the Kaggle notebook.
-2. Attach the prepared bytecode feature dataset used by the notebook.
-3. Enable internet access if W&B logging or package installation is required.
-4. Run all cells.
-5. Compare the regenerated tables against `results/metrics.json`.
+2. Confirm that the notebook has the following attached Kaggle datasets:
+   `sergeisolovyev/defi-bytecode-features`,
+   `sergeisolovyev/dl-ablation-cache`, and
+   `sergeisolovyev/dl-pipeline-utils`.
+3. Enable the GPU accelerator for the Conv-Transformer comparator.
+4. Enable internet access if W&B logging or package installation is required.
+   W&B credentials are optional; the notebook falls back to local outputs.
+5. Run all cells.
+6. Check the generated `results/reproducibility_summary.json`,
+   `results/feature_columns.json`, and CSV result tables in the Kaggle output.
+7. Compare the regenerated tables against `results/metrics.json`.
 
 The notebook records:
 
 - global random seed: `42`
 - split seed: `376`
+- feature schema size: `67`
 - validation size: `11,670`
 - bootstrap resamples: `1,000`
+
+The deep-learning ablation uses the attached `dl-ablation-cache` dataset. This
+is still reproducible: the cache contains the run JSONs produced by the
+notebook's Conv-Transformer cells. Without that cache, Kaggle's session limit
+requires resuming the ablation across multiple notebook versions.
 
 ## Local Inspection
 
