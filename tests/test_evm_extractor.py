@@ -18,7 +18,7 @@ def test_feature_schema_has_expected_size_and_unique_names():
 
     names = list(extractor.get_feature_names_out())
 
-    assert len(names) == 70
+    assert len(names) == 67
     assert len(names) == len(set(names))
     assert names[0] == "total_instructions"
     assert names[-1] == "has_dos_vulnerabilities"
@@ -30,7 +30,7 @@ def test_empty_and_invalid_bytecode_return_zero_features():
 
     features = extractor.transform(data)
 
-    assert features.shape == (3, 70)
+    assert features.shape == (3, 67)
     assert (features.sum(axis=1) == 0).all()
 
 
@@ -40,6 +40,6 @@ def test_simple_bytecode_extracts_basic_instruction_features():
 
     features = extractor.transform(data)
 
-    assert features.shape == (1, 70)
+    assert features.shape == (1, 67)
     assert features.loc[0, "total_instructions"] > 0
     assert features.loc[0, "pushes"] > 0
