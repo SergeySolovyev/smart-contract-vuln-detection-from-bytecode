@@ -1,141 +1,111 @@
-# Lightweight ML for Smart-Contract Vulnerability Detection from EVM Bytecode
+# Smart-Contract Vulnerability Screening from EVM Bytecode
 
-Source code, figures, and reproducibility scripts for the paper:
+Research artefacts for:
 
-> **Lightweight Machine Learning for Smart-Contract Vulnerability Detection
-> from EVM Bytecode: Binary and Multi-Label Classification with a
-> Deep-Learning Comparator**
->
-> S. S. Solovev (WorldQuant University)
+> S. S. Solovev. *Lightweight Machine Learning for Smart-Contract
+> Vulnerability Detection from EVM Bytecode: Binary and Multi-Label
+> Classification with a Deep-Learning Comparator.* Preprint, 2026.
 
----
+This repository accompanies a study of lightweight machine learning for
+smart-contract vulnerability screening in the bytecode-only setting. The
+main research question is whether an interpretable feature representation
+extracted from EVM bytecode can reproduce Slither-derived vulnerability
+labels well enough to serve as a first-stage risk-ranking filter before
+more expensive static or symbolic analysis.
 
-## Live mainnet validation (2026-05-27)
+The repository is intentionally conservative: it documents the public data
+source, the feature extractor, the reported metrics, and the limitations of
+the label source. The executable end-to-end notebook remains the primary
+reproducibility entry point.
 
-> The peer-reviewed results above are the paper's held-out F1. The
-> numbers below are what happened when we ran the model end-to-end
-> on live Ethereum and Arbitrum bytecode this week.
+## Research Contribution
 
-### Slither head-to-head (gold-standard cross-check)
+The work makes three claims.
 
-We ran Slither — the source-required industry-standard scanner —
-against the same mainnet contracts where REVERT emitted scores,
-joining results by address. **80 %+ agreement** on the contracts where
-both could be evaluated:
+1. **Bytecode-only screening.** The pipeline operates on EVM bytecode rather
+   than verified Solidity source, targeting the regime where source-required
+   tools cannot be applied directly.
+2. **Interpretable engineered features.** The released extractor emits an
+   ordered feature vector based on opcode counts, control-flow statistics,
+   gas-cost aggregates, external-call patterns, and SWC-related risk
+   indicators.
+3. **Classical models as a strong baseline.** On this tabular feature
+   representation, tree-based ensembles match or outperform a
+   Conv-Transformer comparator while requiring substantially less training
+   compute.
 
-| Contract | REVERT | Slither (H/M/L) | Agreement |
-|---|---|---|---|
-| Uniswap UniversalRouter | 1.00 HIGH | 8 / 52 / 24 | ✅ BOTH_FLAG (`delegatecall-loop`) |
-| Compound cETH | 1.00 HIGH | 0 / 35 / 14 | ✅ BOTH_FLAG (`erc20-interface`) |
-| Compound cUSDC | 1.00 HIGH | 0 / 31 / 15 | ✅ BOTH_FLAG (`incorrect-equality`) |
-| Sushiswap Router | 1.00 HIGH | 3 / 6 / 17 | ✅ BOTH_FLAG |
-| Aave V2 LendingPool | 0.99 HIGH | 6 / 0 / 5 | ✅ BOTH_FLAG (`controlled-delegatecall`) |
-| WETH | 0.003 CLEAN | 0 / 0 / 0 | ✅ BOTH_CLEAN |
-| USDT | 0.0004 CLEAN | 0 / 15 / 2 | ❌ SLITHER_ONLY (Tether non-standard ERC-20) |
+The intended role of the model is not to replace audit tools or formal
+verification. It is a Tier-1 pre-filter: a fast risk-ranking layer that can
+prioritise contracts for deeper analysis.
 
-The single divergence is the known Tether-specific `transfer()`
-return-value design — invisible to bytecode-only features by design.
-Full numbers and methodology in
-[`bulk_scan_pilot/comparison_report.csv`](bulk_scan_pilot/) and
-[`findings_slither_comparison.md`](bulk_scan_pilot/).
+## Reported Results
 
-### Pre-hack retrocast (3 weeks before each exploit)
+All headline metrics below are recorded in
+[`results/metrics.json`](results/metrics.json).
 
-| Hack | Date | Loss | REVERT score | Verdict |
-|---|---|---|---|---|
-| Nomad Bridge | 2022-08-01 | $190 M | **0.989** | ✅ Caught |
-| Curve pETH | 2023-07-30 | $11 M | **0.982** | ✅ Caught |
-| Euler Finance | 2023-03-13 | $200 M | **0.004** | ❌ Missed (Module/Dispatcher proxy — fixing in v1.1) |
+| Task | Model | Metric | Value |
+|---|---:|---:|---:|
+| Binary any-vulnerability | RandomForest | F1 | 0.947 |
+| Binary any-vulnerability | RandomForest | Recall | 0.962 |
+| Binary any-vulnerability | RandomForest | FNR | 0.038 |
+| Binary any-vulnerability | RandomForest | PR-AUC | 0.991 |
+| Binary any-vulnerability | XGBoost + Optuna | F1 | 0.948 |
+| Multi-label SWC | XGBoost | macro-F1 | 0.7746 |
+| Multi-label SWC | best Conv-Transformer | macro-F1 | 0.7302 |
 
-**2-of-3**. Honest reporting. The miss is interpretable: Euler's
-vulnerable function lived in a separate impl contract behind their
-Module/Dispatcher proxy; the proxy bytecode is benign. v1.1 ships
-EIP-1967 + Diamond-storage impl chasing.
+The binary results are evaluated on an 11,670-contract held-out split from
+117,091 Slither-labelled Ethereum contracts after exact bytecode-hash
+deduplication. The multi-label task covers eight SWC-aligned classes.
 
-60-second Loom walking through this:
-[`retrocast_loom/loom_v2_honest.md`](retrocast_loom/) (recording shortly).
+## Repository Contents
 
-### Multi-chain
+```text
+.
+├── DATASET_CARD.md
+├── FEATURE_SCHEMA.md
+├── MODEL_CARD.md
+├── REPRODUCIBILITY.md
+├── features/
+│   └── evm_extractor.py
+├── results/
+│   └── metrics.json
+├── tests/
+│   └── test_evm_extractor.py
+├── requirements.txt
+├── LICENSE
+└── README.md
+```
 
-Validated on Arbitrum (top-20 DeFi contracts via public RPC; no
-Alchemy key needed for L2s). See
-[`bulk_scan_pilot/arb_top_report_v1_1.csv`](bulk_scan_pilot/).
-Optimism / Base / BNB endpoints already wired.
-
----
-
-## What this means in one sentence
-
-> **REVERT extends Slither-level vulnerability signal to the ~95 % of
-> mainnet contracts where Slither cannot run (no verified source).**
-
-If you run an audit firm and want to be a v1.2 design partner,
-[email Sergei](mailto:sssolovjov@gmail.com) — terms in
-[`customer_discovery/dm_v2_slither_proof.md`](customer_discovery/).
-
----
-
-## Abstract
-
-Smart-contract vulnerabilities have caused losses exceeding USD 3 billion
-in decentralised finance, while most Ethereum mainnet contracts ship
-without verified source and are therefore unreachable by source-required
-analysers (Slither, Mythril). We present a lightweight 65-feature pipeline
-operating directly on EVM bytecode and study both **binary** any-vulnerability
-detection and **multi-label** SWC-class classification on 117,091
-Slither-labelled contracts.
-
-- **Binary** — three classical ensembles converge to F1 in [0.918, 0.948];
-  RandomForest leads at the recall-priority operating point
-  (F1 = 0.947, FNR = 3.8%) and is statistically indistinguishable from
-  XGBoost+Optuna under B = 1000 bootstrap.
-- **Multi-label** — classical XGBoost (0.751) outperforms all ten
-  configurations of a 14-run Conv-Transformer ablation (best 0.730) at
-  roughly 30× less training compute.
-
-We attribute the negative deep-learning result to the **tabular-data regime**,
-where tree-based models systematically outperform deep nets
-(Grinsztajn et al., 2022; Shwartz-Ziv & Armon, 2022).
-
-## Reproducibility — four artefacts
+## Reproducibility Entry Points
 
 | Artefact | URL |
 |---|---|
-| Raw dataset (HuggingFace) | https://huggingface.co/datasets/mwritescode/slither-audited-smart-contracts |
+| Raw dataset | https://huggingface.co/datasets/mwritescode/slither-audited-smart-contracts |
 | End-to-end Kaggle notebook | https://www.kaggle.com/code/sergeisolovyev/smart-contract-vuln-detection-from-bytecode |
-| W&B 14-run DL ablation | project `defi-binary-vuln`, run `hk57ndy1`, entity `sesesolovev-hse-university` |
-| This repository (paper source) | https://github.com/SergeySolovyev/smart-contract-vuln-detection-from-bytecode |
+| W&B ablation project | https://wandb.ai/sesesolovev-hse-university/defi-binary-vuln |
+| GitHub repository | https://github.com/SergeySolovyev/smart-contract-vuln-detection-from-bytecode |
 
-The Kaggle notebook is the executable reproducibility entry point — feature
-extraction, training, all four classical binary classifiers, the
-ten-configuration Conv-Transformer ablation, and figure generation all run
-end-to-end there. This repository ships the model and dataset cards plus the bytecode
-feature-extractor (`features/evm_extractor.py`); the full LaTeX paper source,
-figures, and end-to-end training all live in the Kaggle notebook above.
+For a full rerun, use the Kaggle notebook and follow
+[`REPRODUCIBILITY.md`](REPRODUCIBILITY.md). This repository keeps the
+standalone feature extractor and documentation needed to inspect the method
+without depending on the notebook UI.
 
-## Repository structure
+## Limitations
 
-```
-.
-├── MODEL_CARD.md          # model release card (architecture, metrics, limits)
-├── DATASET_CARD.md        # derived-dataset card (provenance, splits, licence)
-├── features/
-│   └── evm_extractor.py   # 65-feature EVM-bytecode extractor (pyevmasm)
-├── LICENSE                # MIT (code) / CC-BY 4.0 (text)
-└── README.md              # this file
-```
-
-## Reproduce everything
-
-Open the Kaggle notebook linked above and **Run All** — feature extraction,
-the four classical binary classifiers, the 14-run Conv-Transformer ablation,
-the statistical tests, and every figure regenerate end-to-end on a seeded run.
+- Labels are produced by Slither and are not human-audit ground truth.
+- Reported performance is bounded by Slither's own false-positive and
+  false-negative behaviour.
+- The original split is stratified but not temporal, compiler-version
+  stratified, or address-family grouped.
+- Proxy and clone families may induce residual correlations across folds.
+- The released extractor schema must match the feature matrix used for
+  training; see [`FEATURE_SCHEMA.md`](FEATURE_SCHEMA.md).
 
 ## Citation
 
 ```bibtex
 @misc{solovev2026smartcontract,
-  author = {S. S. Solovev},
+  author = {Solovev, S. S.},
   title  = {Lightweight Machine Learning for Smart-Contract Vulnerability
             Detection from {EVM} Bytecode: Binary and Multi-Label
             Classification with a Deep-Learning Comparator},
@@ -146,11 +116,6 @@ the statistical tests, and every figure regenerate end-to-end on a seeded run.
 
 ## License
 
-- **Code and scripts** — MIT License (see `LICENSE`).
-- **Paper text and figures** — CC-BY 4.0.
-- **Trained model weights** — released separately on HuggingFace under
-  Apache 2.0.
-
-## Contact
-
-S. S. Solovev — sssolovjov@gmail.com
+- Code in this repository: MIT License.
+- Paper text, figures, and documentation: CC-BY 4.0 unless noted otherwise.
+- External datasets and model artefacts retain their own licences.
