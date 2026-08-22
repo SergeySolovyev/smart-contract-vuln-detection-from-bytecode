@@ -11,66 +11,58 @@ tags:
   - vulnerability-detection
   - feature-engineering
   - slither
-pretty_name: EVM Bytecode 65-Feature Matrix (117K, Slither-Labelled)
+pretty_name: EVM Bytecode Feature Matrix for Vulnerability Screening (v2)
 size_categories:
   - 100K<n<1M
 source_datasets:
   - mwritescode/slither-audited-smart-contracts
 ---
 
-# EVM Bytecode 65-Feature Matrix (117 K, Slither-Labelled)
+# EVM Bytecode Feature Matrix (v2)
 
-Derived dataset for the paper *"Lightweight Machine Learning
-for Smart-Contract Vulnerability Detection from EVM Bytecode"* by
-S. S. Solovev. Each row is a smart contract represented by **67
-numerical features** (65 base + 2 aggregated risk indicators) extracted
-from the raw EVM bytecode via a deterministic pyevmasm-based pipeline.
+This card describes the derived feature matrix used in:
 
-This dataset is published so that users can **reproduce the paper's
-results without re-running feature extraction** — the upstream raw
-bytecode corpus
-([`mwritescode/slither-audited-smart-contracts`](https://huggingface.co/datasets/mwritescode/slither-audited-smart-contracts))
-is large and feature extraction takes several CPU-hours.
+> S. S. Solovev. *Lightweight Machine Learning for Smart-Contract
+> Vulnerability Detection from EVM Bytecode: Binary and Multi-Label
+> Classification with a Deep-Learning Comparator.* Preprint, 2026.
 
-## Splits
+The upstream data source is the public HuggingFace dataset
+[`mwritescode/slither-audited-smart-contracts`](https://huggingface.co/datasets/mwritescode/slither-audited-smart-contracts)
+(author: Martina Rossini), containing Ethereum smart contracts with
+bytecode and Slither reports.
 
-| Split | Rows |
-|---|---|
-| train | 105,027 |
-| validation | 11,670 |
-| **total** | **117,091** |
+## Version note
 
-Stratified 90/10 split by any-vulnerability label, seed 376. Bytecode-
-hash deduplication removed 3,517 duplicates from the raw corpus before
-splitting.
+The **v1 corpus (117,091 contracts, 90/10 split) is superseded**: its
+deduplication used the raw bytecode string only, so contracts differing
+only in the CBOR metadata trailer or constructor arguments crossed the
+split boundary (4.76% of v1 validation rows were feature-identical to
+train). The v2 corpus below is the authoritative one.
 
-## Feature columns (67)
+## Provenance and Split (v2)
 
-15 SWC-mapped categories + 2 aggregated indicators:
+Built by `scripts/build_data_v2.py`; exact per-step counts and split
+sha256 hashes are recorded in [`data/manifest_v2.json`](data/manifest_v2.json).
 
-1. **Basic stats** (2): total / unique instructions
-2. **Block dependence** (8): TIMESTAMP, NUMBER, DIFFICULTY, GASLIMIT,
-   COINBASE, BLOCKHASH presence + counts
-3. **Environmental opcodes** (4): count, ratio, unique count, complexity
-4. **External deps** (6): BALANCE/ADDRESS/CALLER/ORIGIN/CALLVALUE counts
-   + dependency index
-5. **Calldata ops** (5): SIZE/LOAD/COPY counts, total, density
-6. **External calls** (5): count, presence, value/gas ops, reentrancy pattern
-7. **Memory ops** (3): reads, writes, ratio
-8. **Stack ops** (5): pushes, pops, imbalance, ops ratio, underflow risk
-9. **Gas analysis** (5): total cost, average, max, high-gas count, DoS risk index
-10. **Arithmetic ops** (3): count, density, unsafe pattern
-11. **Control flow** (4): ops, JUMPI count, branching ratio, complexity
-12. **Access control** (4): caller checks, origin usage, ratio, origin-instead-caller flag
-13. **Advanced patterns** (3): balance-before-call, randomness, bad-randomness flag
-14. **Complexity measures** (3): dangerous ops count + density, opcode entropy
-15. **Risk scores (base)** (5): reentrancy, frontrunning, DoS, arithmetic, overall
-16. **Aggregated risk** (2): vuln_risk_score, complexity_score
-17. **Binary flags** (5): reentrancy, unchecked-calls, arithmetic, access-control, DoS indicators
+| Item | Value |
+|---|---:|
+| Loaded rows (v1 train + v1 val) | 116,697 |
+| After dedup on metadata-stripped bytecode | 115,839 |
+| After dedup on 67-d feature vector | 112,467 |
+| Train split | 89,973 |
+| Validation split | 11,247 |
+| Test split | 11,247 |
+| Split method | Stratified 80/10/10 by binary any-vulnerability label |
+| Split seed | 376 |
+
+Under the v2 protocol, hyperparameters are tuned with 5-fold CV inside
+train, thresholds are chosen on val, and results are reported on test
+exactly once per model.
 
 ## Labels
 
-8 SWC-aligned multi-label classes (each binary 0/1):
+The 39 Slither detector tags are mapped to eight SWC-aligned classes via
+[`data/label_mappings.json`](data/label_mappings.json):
 
 - access-control
 - arithmetic
@@ -81,46 +73,69 @@ splitting.
 - reentrancy
 - unchecked-calls
 
-The `binary` target is `any-of-the-eight`, used for binary classification
-in the paper's main result (F1 = 0.947 with RandomForest).
+The binary target is defined as the logical OR of these eight labels.
+Class prevalences and per-split positive rates: see
+`data/manifest_v2.json`; per-class metric values are TBD (v2 rerun in
+progress, 2026-08-22).
 
-## Load
+## Feature Schema
+
+The released repository extractor (`src/evm_extractor.py`) emits 67
+ordered features. See [`FEATURE_SCHEMA.md`](FEATURE_SCHEMA.md) for the
+exact order and group counts, and
+[`data/feature_columns.json`](data/feature_columns.json) for the canonical
+machine-readable list.
+
+When using a precomputed parquet feature matrix, verify that its feature
+columns match the model artefact being evaluated. Do not assume that a
+model trained on one schema can safely consume another schema with a
+different feature count or order.
+
+## Loading Example
 
 ```python
+import json
 import pandas as pd
 
-train = pd.read_parquet("train_dl_features.parquet")
-val   = pd.read_parquet("val_dl_features.parquet")
-print(train.shape, val.shape)  # (105027, 67+labels)  (11670, ...)
+train = pd.read_parquet("train_v2.parquet")
+val = pd.read_parquet("val_v2.parquet")
+test = pd.read_parquet("test_v2.parquet")
+
+with open("data/feature_columns.json", encoding="utf-8") as fh:
+    feature_cols = json.load(fh)
+
+label_cols = [
+    "access-control",
+    "arithmetic",
+    "bad-randomness",
+    "double-spending",
+    "locked-ether",
+    "other",
+    "reentrancy",
+    "unchecked-calls",
+]
 ```
 
 ## Limitations
 
-- **Label provenance**: Slither static-analysis output, NOT
-  human-verified ground truth. Inherits Slither's false-positive
-  and false-negative rate.
-- **No address-grouped deduplication**: proxy/clone families may have
-  correlated samples across train/val folds.
-- **No compiler-version stratification**: older solc versions
-  over-represented; modern patterns (AA wallets, EIP-7702) under-represented.
-- **No temporal split**: deployments span 2017-2022; performance on
-  2024-2026 contracts is not validated here.
+- Labels are generated by Slither and are not human-audit ground truth.
+- Metadata-trailer and feature-vector duplicates are removed, but
+  address-family, proxy-family, compiler-version, and temporal correlations
+  are not fully controlled.
+- The dataset mostly reflects the contract patterns present in the upstream
+  corpus and may under-represent newer deployment patterns.
+- Any claim about vulnerability detection beyond Slither consistency requires
+  additional validation on human-curated or mutation-based labels.
 
 ## Citation
 
 ```bibtex
 @misc{solovev2026smartcontract,
-  author = {S. S. Solovev},
+  author = {Solovev, Sergei},
   title  = {Lightweight Machine Learning for Smart-Contract Vulnerability
             Detection from {EVM} Bytecode: Binary and Multi-Label
             Classification with a Deep-Learning Comparator},
   year   = {2026},
-  note   = {Preprint}
+  note   = {Preprint. v2 evaluation in progress}
 }
 ```
-
-## License
-
-CC-BY 4.0 — free for commercial and non-commercial use with attribution.
-Note: the upstream raw dataset (`mwritescode/slither-audited-smart-contracts`)
-is itself MIT-licensed; this derived feature matrix complies with that.

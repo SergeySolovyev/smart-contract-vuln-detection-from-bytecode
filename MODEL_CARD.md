@@ -1,5 +1,5 @@
 ---
-license: apache-2.0
+license: mit
 tags:
   - smart-contracts
   - ethereum
@@ -14,156 +14,101 @@ datasets:
 language: en
 library_name: scikit-learn
 pipeline_tag: tabular-classification
-model-index:
-  - name: defi-vuln-rf-65feat
-    results:
-      - task:
-          type: binary-classification
-          name: Smart-contract any-vulnerability detection
-        dataset:
-          name: slither-audited-smart-contracts (derived 65-feature matrix)
-          type: tabular
-          config: bytecode-65feat
-          split: validation
-        metrics:
-          - type: f1
-            value: 0.947
-            name: F1
-          - type: mcc
-            value: 0.82
-            name: MCC
-          - type: false_negative_rate
-            value: 0.052
-            name: FNR
 ---
 
-# defi-vuln-rf-65feat
+# EVM Bytecode Vulnerability Screening Model Card
 
-Lightweight machine-learning detector for smart-contract vulnerabilities
-from raw EVM bytecode — **no source code required**. Pipelines a
-65-feature bytecode-disassembly extractor into a Random Forest (binary)
-or XGBoost (multi-label) classifier.
+This model card documents the machine-learning pipeline accompanying:
 
-This is the model release accompanying the paper:
+> S. S. Solovev. *Lightweight Machine Learning for Smart-Contract
+> Vulnerability Detection from EVM Bytecode: Binary and Multi-Label
+> Classification with a Deep-Learning Comparator.* Preprint, 2026.
 
-> **S. S. Solovev (2026)**. *Lightweight Machine Learning for
-> Smart-Contract Vulnerability Detection from EVM Bytecode: Binary and
-> Multi-Label Classification with a Deep-Learning Comparator.*
-> (Chiang Mai, Thailand).
-> [Paper repo](https://github.com/SergeySolovyev/smart-contract-vuln-detection-from-bytecode)
+The model is intended as a first-stage screening system for EVM bytecode. It
+estimates agreement with Slither-derived vulnerability labels and ranks
+contracts for deeper analysis. It is not a final security verdict.
 
-## Headline numbers
+## Status: v1 metrics retracted, v2 rerun in progress
 
-| Task        | Model            | F1    | MCC  | FNR   |
-|-------------|------------------|-------|------|-------|
-| Binary      | RandomForest     | **0.947** | 0.82 | 5.2%  |
-| Binary      | XGBoost (Optuna) | 0.943 | 0.81 | 5.6%  |
-| Multi-label | XGBoost (macro)  | **0.775** | —    | —     |
+All previously published metric values (v1) are **retracted**: the v1
+evaluation used a leaky split (4.76% of validation rows feature-identical
+to train after metadata-trailer variation) and tuned hyperparameters and
+thresholds on the reporting split. No v1 number, including any previously
+listed here or in the README, should be cited.
 
-All numbers on a stratified 90/10 split (seed 376) of 117,091
-Slither-labelled contracts. Bootstrap CIs reported in the paper.
+## Evaluation Protocol (v2)
 
-The classical pipeline **out-performs** a 14-run Conv-Transformer
-ablation on multi-label (best DL macro-F1 = 0.730) at roughly 30× less
-training compute — a tabular-data-regime result consistent with
-Grinsztajn et al. (2022) and Shwartz-Ziv & Armon (2022).
+- Corpus: 112,467 contracts after dedup on metadata-stripped bytecode and
+  on the 67-d feature vector (see `data/README.md`).
+- Split: stratified 80/10/10 train/val/test (89,973 / 11,247 / 11,247),
+  seed 376.
+- Hyperparameter tuning: Optuna with **5-fold stratified CV inside train
+  only**.
+- Operating thresholds: selected on **val**.
+- Reporting: **test, touched exactly once per model**; B=1000 stratified
+  percentile bootstrap CIs; paired delta-F1 bootstrap for model
+  comparisons.
 
-## Files
+## Model Family
 
-| File | Purpose |
-|---|---|
-| `evm_extractor.py` | source of the `EVMBytecodeFeatureExtractor` (scikit-learn `TransformerMixin`) |
-| `evm_extractor.pkl` | fitted instance (used at inference) |
-| `model_rf_binary.pkl` | trained RandomForest binary classifier |
-| `model_xgb_binary.pkl` | trained XGBoost binary classifier |
-| `model_xgb_multilabel.pkl` | trained XGBoost multi-label classifier |
-| `feature_names.json` | list of the 67 (= 65 base + 2 aggregated) feature names |
-| `label_classes.json` | list of the 8 SWC multi-label classes |
+- Binary task: RandomForest, XGBoost, CatBoost, and LogisticRegression
+  classifiers over engineered bytecode features.
+- Multi-label task: XGBoost and RandomForest over the same feature
+  representation.
+- Comparator: Conv-Transformer ablation (10 configurations) over opcode
+  sequences.
 
-## Inference example
+The released feature extractor is documented in
+[`FEATURE_SCHEMA.md`](FEATURE_SCHEMA.md).
 
-```python
-import joblib
-from evm_extractor import EVMBytecodeFeatureExtractor  # noqa: F401 (for unpickling)
-import pandas as pd
+## Metrics (v2 — pending)
 
-extractor = joblib.load("evm_extractor.pkl")
-model     = joblib.load("model_rf_binary.pkl")
+| Task | Model | F1 / macro-F1 (test) |
+|---|---|---|
+| Binary | RandomForest | TBD (v2 rerun in progress, 2026-08-22) |
+| Binary | XGBoost (Optuna, CV-in-train) | TBD (v2 rerun in progress, 2026-08-22) |
+| Binary | CatBoost | TBD (v2 rerun in progress, 2026-08-22) |
+| Binary | LogisticRegression | TBD (v2 rerun in progress, 2026-08-22) |
+| Multi-label | XGBoost | TBD (v2 rerun in progress, 2026-08-22) |
+| Multi-label | RandomForest | TBD (v2 rerun in progress, 2026-08-22) |
+| Multi-label | best Conv-Transformer | TBD (v2 rerun in progress, 2026-08-22) |
 
-# Bytecode hex string (0x-prefixed) for one mainnet contract:
-bytecode = "0x6080604052..."
+Values will be filled from the v2 result artifacts in `results/` and
+cross-checked against the paper by `scripts/check_numbers_v2.py`.
 
-X = extractor.transform(pd.DataFrame({"bytecode": [bytecode]}))
-score = model.predict_proba(X)[0, 1]
-print(f"vulnerability risk score: {score:.3f}")
-```
+## Intended Use
 
-For multi-label per-class probabilities:
+- Prioritising large contract corpora for manual review or deeper static
+  analysis.
+- Bytecode-only screening when verified Solidity source is unavailable.
+- A research baseline for EVM bytecode vulnerability detection.
 
-```python
-model_ml = joblib.load("model_xgb_multilabel.pkl")
-import json
-classes = json.load(open("label_classes.json"))
-proba = model_ml.predict_proba(X)
-for c, p in zip(classes, proba[0]):
-    print(f"{c:>18s}: {p:.3f}")
-```
+## Out of Scope
 
-## Intended use
+- Final audit verdicts.
+- Exploit-path generation.
+- Formal verification.
+- Detection of vulnerability classes absent from, or weakly represented in,
+  the Slither-derived label source.
 
-- Pre-filter for security auditors and DEX risk teams: triage a large
-  contract corpus down to a short list for manual review
-- Compose with source-required tools (Slither, Mythril) — this model
-  fills the gap where source is unavailable (~95% of mainnet contracts)
-- Research baseline for new bytecode-only vulnerability methods
+## Limitations
 
-## Out of scope
+- Labels come from Slither static analysis and inherit its false positives and
+  false negatives.
+- The v2 split is stratified and duplicate-controlled but not temporal,
+  compiler-version stratified, or address-family grouped.
+- Proxy, clone, and compiler-family correlations may remain after
+  deduplication.
+- The model should be reported as estimating Slither-consistency, not
+  human-audit ground truth.
 
-- **Not a final verdict.** Output is "agreement with Slither at scale",
-  not human-verified ground truth
-- Not a substitute for a comprehensive audit
-- Not optimized for confidential / encrypted bytecode (e.g.
-  zkApp-wrapped contracts)
+## Artefact Availability
 
-## Limitations (verbatim from the paper)
+This repository contains the paper sources, the standalone feature
+extractor, the full v2 pipeline scripts, and the split manifest. The v1
+end-to-end Kaggle notebook remains available for provenance:
 
-- **Label provenance**: labels come from Slither static analysis;
-  inherits Slither's false-positive / false-negative rate
-- **Split methodology**: 90/10 stratified by any-vulnerability label,
-  seed 376. No address-grouped deduplication for proxy / clone families,
-  no compiler-version stratification, no temporal split
-- **Dataset coverage**: 2017-2022 deployments only; recent contract
-  patterns (account abstraction, EIP-7702 delegations) under-represented
+https://www.kaggle.com/code/sergeisolovyev/smart-contract-vuln-detection-from-bytecode
 
-See the paper for full discussion (§Threats to Validity).
-
-## Reproducibility
-
-| Artefact | URL |
-|---|---|
-| Paper repo (LaTeX source) | https://github.com/SergeySolovyev/smart-contract-vuln-detection-from-bytecode |
-| Kaggle notebook (end-to-end) | https://www.kaggle.com/code/sergeisolovyev/smart-contract-vuln-detection-from-bytecode |
-| Raw dataset | https://huggingface.co/datasets/mwritescode/slither-audited-smart-contracts |
-| W&B ablation run | project `defi-binary-vuln`, run `hk57ndy1` |
-
-## Citation
-
-```bibtex
-@misc{solovev2026smartcontract,
-  author = {S. S. Solovev},
-  title  = {Lightweight Machine Learning for Smart-Contract Vulnerability
-            Detection from {EVM} Bytecode: Binary and Multi-Label
-            Classification with a Deep-Learning Comparator},
-  year   = {2026},
-  note   = {Preprint}
-}
-```
-
-## License
-
-- **Model weights and inference code**: Apache 2.0
-- **Paper text and figures**: CC-BY 4.0 (see GitHub repo)
-
-## Contact
-
-S. S. Solovev — sssolovjov@gmail.com
+If trained model weights are published separately, their artefact page should
+state the exact feature schema and model version used for inference.
