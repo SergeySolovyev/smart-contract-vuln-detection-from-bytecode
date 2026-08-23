@@ -1,0 +1,59 @@
+{
+  "seed": 376,
+  "n_features": 67,
+  "labels": [
+    "access-control",
+    "arithmetic",
+    "bad-randomness",
+    "double-spending",
+    "locked-ether",
+    "other",
+    "reentrancy",
+    "unchecked-calls"
+  ],
+  "steps": [
+    {
+      "step": "loaded (v1 train + v1 val)",
+      "rows": 116697
+    },
+    {
+      "step": "after dropping empty/degenerate bytecode",
+      "rows": 116697
+    },
+    {
+      "step": "after dedup on metadata-stripped bytecode",
+      "rows": 115839
+    },
+    {
+      "step": "after dedup on 67-d feature vector",
+      "rows": 112467
+    },
+    {
+      "step": "wrote train_v2.parquet",
+      "rows": 89973
+    },
+    {
+      "step": "wrote val_v2.parquet",
+      "rows": 11247
+    },
+    {
+      "step": "wrote test_v2.parquet",
+      "rows": 11247
+    }
+  ],
+  "dropped_bytecode_dups": 858,
+  "dropped_feature_dups": 3372,
+  "positives": 77609,
+  "positive_rate": 0.6900601954351054,
+  "n_train": 89973,
+  "sha256_train": "3a93e58df54e989ec0d18fb480cc47b71a0d9a7ef8d762935594d560f413bcae",
+  "positive_rate_train": 0.6900625743278539,
+  "n_val": 11247,
+  "sha256_val": "125937bc29ef9658c58dece44a29a576e80f37081f26625fdfd10d1e1f288176",
+  "positive_rate_val": 0.6900506801813817,
+  "n_test": 11247,
+  "sha256_test": "e7478bec88008dfbe90dd5025a44b17f7ee313d9e0568683b73ad8b7a00c65c8",
+  "positive_rate_test": 0.6900506801813817,
+  "label_mapping": "label_mappings.json (39 Slither detectors -> 8 classes + ignore/safe)",
+  "note_columns": "opcodes_clean dropped from v2 outputs: unused by both pipelines (DL tokenizer consumes bytecode; classical consumes the 67 features). zstd-7 compression."
+}

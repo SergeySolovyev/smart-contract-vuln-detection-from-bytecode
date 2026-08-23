@@ -34,13 +34,13 @@ from sklearn.preprocessing import StandardScaler
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-BASE = Path(r"D:\DeFi\Научный_телеграф\kaggle_paper\v2")
+BASE = Path(_ROOT)
 RES = BASE / "results_classical"
 RES.mkdir(exist_ok=True)
 SEED = 42
 
 FEATURES = json.load(open(
-    r"D:\DeFi\tmp\kaggle_solovev_output_v11\results\feature_columns.json",
+    _pathlib.Path(__file__).resolve().parent.parent / "data" / "feature_columns.json",
     encoding="utf-8"))
 LABELS = ["access-control", "arithmetic", "bad-randomness", "double-spending",
           "locked-ether", "other", "reentrancy", "unchecked-calls"]
@@ -59,6 +59,16 @@ print(f"pos rate: train {ytr.mean():.3f}  val {yva.mean():.3f}  test {yte.mean()
 # ── XGBoost + Optuna with real CV ───────────────────────────────────────────
 import optuna
 import xgboost as xgb
+
+import os as _os
+import pathlib as _pathlib
+
+# Working directory. Defaults to the results/ tree shipped in this
+# repository so the analysis and emit scripts run straight from a checkout;
+# set PAPER_V2_DIR to a full working tree (with the parquet splits and
+# runs_v2/) to regenerate results from scratch.
+_ROOT = _os.environ.get("PAPER_V2_DIR") or str(
+    _pathlib.Path(__file__).resolve().parent.parent / "results")
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 
 def cv_f1(params):

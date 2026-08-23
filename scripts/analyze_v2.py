@@ -27,9 +27,19 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+import os as _os
+import pathlib as _pathlib
+
+# Working directory. Defaults to the results/ tree shipped in this
+# repository so the analysis and emit scripts run straight from a checkout;
+# set PAPER_V2_DIR to a full working tree (with the parquet splits and
+# runs_v2/) to regenerate results from scratch.
+_ROOT = _os.environ.get("PAPER_V2_DIR") or str(
+    _pathlib.Path(__file__).resolve().parent.parent / "results")
+
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-BASE = Path(r"D:\DeFi\Научный_телеграф\kaggle_paper\v2")
+BASE = Path(_ROOT)
 RUNS = BASE / "runs_v2"
 RESC = BASE / "results_classical"
 FIGS = BASE / "figures"
@@ -77,12 +87,46 @@ else:
     json.dump(ml, open(ML_CACHE, "w"), indent=2)
 
 # ── DL results ──────────────────────────────────────────────────────────────
+EXPECTED = ["A1_baseline", "B1_pos_weight", "B2_focal_g2",
+            "B3_focal_pos_weight", "B4_asymmetric",
+            "B5_threshold_tuning_on_best", "C1_transformer_4layers",
+            "C2_dmodel_256", "C3_pure_cnn", "C4_pure_transformer"]
+
+
+def _canon(name):
+    """Fold a truncated config name onto its registry entry.
+
+    The trainer sometimes emits a shortened name (observed: the ops-drop key
+    "B5_threshold_tuning" for registry entry "B5_threshold_tuning_on_best").
+    Reading the directory naively then counts one config twice, which inflates
+    the comparison family and, through Holm, tightens the threshold for every
+    other config. Fold first, then reject any second file for a name already
+    taken.
+    """
+    for e in EXPECTED:
+        if e == name or e.startswith(name) or name.startswith(e):
+            return e
+    return name
+
+
 dl = {}
 for p in sorted(RUNS.glob("*.json")):
     d = json.loads(p.read_text(encoding="utf-8"))
     if "f1_per_label" in d:
-        dl[p.stem] = {"macro_f1": d.get("macro_f1"),
-                      "f1_per_label": d["f1_per_label"]}
+        # dl_pipeline writes the held-out score as macro_f1_external; older
+        # caches used macro_f1. Fall back to the mean of the per-label vector
+        # so a config is never silently treated as zero.
+        mf = d.get("macro_f1_external", d.get("macro_f1"))
+        if mf is None:
+            mf = float(np.mean(d["f1_per_label"]))
+        cname = _canon(p.stem)
+        if cname in dl:
+            print(f"  duplicate ignored: {p.stem} -> {cname}")
+            continue
+        dl[cname] = {"macro_f1": float(mf),
+                      "f1_per_label": d["f1_per_label"],
+                      "train_time_sec": d.get("train_time_sec"),
+                      "params_m": d.get("model_params_M")}
 print(f"\nDL configs available: {len(dl)}/10 -> {sorted(dl)}")
 if len(dl) < 10:
     print("!! fewer than 10 DL configs — rerun Phase 3 before final paper numbers")
@@ -163,8 +207,8 @@ for sep in (3, 3 + n_a, 3 + n_a + n_b):
     ax.axvline(sep, color="black", lw=1.4)
 ax.set_xlabel("")
 ax.set_ylabel("SWC vulnerability class")
-ax.set_title("Per-class $F_1$ (v2 protocol, single run): classical (left) "
-             "vs.\\ Conv-Transformer ablation (right)", fontsize=10, pad=8)
+# No in-figure title: the caption states the content, and the LaTeX
+# inter-word escape this title used renders as a literal backslash here.
 plt.xticks(rotation=35, ha="right")
 plt.tight_layout()
 fig.savefig(FIGS / "perlabel_f1_heatmap_v2.pdf", bbox_inches="tight")

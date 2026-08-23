@@ -16,16 +16,26 @@ import json
 import sys
 from pathlib import Path
 
+import os as _os
+import pathlib as _pathlib
+
+# Working directory. Defaults to the results/ tree shipped in this
+# repository so the analysis and emit scripts run straight from a checkout;
+# set PAPER_V2_DIR to a full working tree (with the parquet splits and
+# runs_v2/) to regenerate results from scratch.
+_ROOT = _os.environ.get("PAPER_V2_DIR") or str(
+    _pathlib.Path(__file__).resolve().parent.parent / "results")
+
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-V2 = Path(r"D:\DeFi\Научный_телеграф\kaggle_paper\v2")
-PIPE = (Path(r"D:\DeFi\Научный_телеграф\kaggle_paper") / "dl_pipeline.py") \
+V2 = Path(_ROOT)
+PIPE = (Path(_ROOT).parent / "dl_pipeline.py") \
     .read_text(encoding="utf-8")
 BODY = (V2 / "dl_trainer_v2_source.py").read_text(encoding="utf-8")
 # OPS_SECRET_INJECT: substitute the placeholder at build time (secret lives
-# in deploy/revert.env, never in this file or in git)
+# in the env file named by DL_DROP_ENV, never in this file or in git)
 import io as _io
-_sec = [l.split('=',1)[1].strip() for l in _io.open('D:/DeFi/bytecode-scan-api/deploy/revert.env', encoding='utf-8') if l.startswith('REVERT_OPS_SECRET=')][0]
+_sec = [l.split('=',1)[1].strip() for l in _io.open(os.environ.get("DL_DROP_ENV", ""), encoding='utf-8') if l.startswith('REVERT_OPS_SECRET=')][0]
 BODY = BODY.replace(chr(60)*2 + chr(79)+chr(80)+chr(83)+chr(95)+chr(83)+chr(69)+chr(67)+chr(82)+chr(69)+chr(84) + chr(62)*2, _sec)
 
 ENVFIX = '''# --- GPU-arch fix ----------------------------------------------------------

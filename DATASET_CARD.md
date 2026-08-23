@@ -75,8 +75,12 @@ The 39 Slither detector tags are mapped to eight SWC-aligned classes via
 
 The binary target is defined as the logical OR of these eight labels.
 Class prevalences and per-split positive rates: see
-`data/manifest_v2.json`; per-class metric values are TBD (v2 rerun in
-progress, 2026-08-22).
+`data/manifest_v2.json`. Per-class metric values for every model are
+in `results/stats_v2.json` and plotted in
+`figures/perlabel_f1_heatmap_v2.png`. The rarest class,
+*double-spending*, is the one on which every model degrades: the best
+classical model reaches F1 0.500 on it against 0.911 on
+*unchecked-calls*.
 
 ## Feature Schema
 

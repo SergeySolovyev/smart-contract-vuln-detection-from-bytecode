@@ -42,8 +42,16 @@ Notes:
   `scripts/dl_trainer_v2_source.py` accordingly contains the placeholder
   `<<OPS_SECRET>>`, never a real value. The telemetry ping it guards is
   optional and does not affect results.
-- All metric values are TBD until the v2 rerun completes
-  (in progress, 2026-08-22).
+- All metric values are generated from the artifacts in `results/`
+  by `scripts/emit_cards_v2.py` (Markdown) and
+  `scripts/emit_macros_v2.py` (LaTeX), and verified against the
+  built paper by `scripts/check_numbers_v2.py`, which exits non-zero
+  on any disagreement. No metric is typed by hand in this repo.
+- The deep ablation covers 8 of 10 planned configurations;
+  `C3_pure_cnn` and `C4_pure_transformer` did not complete within
+  the GPU allocation for this run. `scripts/finish_local_cpu.py`
+  trains exactly those two on CPU against the same splits, and the
+  emit scripts pick them up automatically once present.
 
 ## v1 Notebook (provenance only — numbers retracted)
 

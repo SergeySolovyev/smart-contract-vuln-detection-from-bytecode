@@ -61,20 +61,34 @@ listed here or in the README, should be cited.
 The released feature extractor is documented in
 [`FEATURE_SCHEMA.md`](FEATURE_SCHEMA.md).
 
-## Metrics (v2 — pending)
+## Metrics (v2)
 
 | Task | Model | F1 / macro-F1 (test) |
 |---|---|---|
-| Binary | RandomForest | TBD (v2 rerun in progress, 2026-08-22) |
-| Binary | XGBoost (Optuna, CV-in-train) | TBD (v2 rerun in progress, 2026-08-22) |
-| Binary | CatBoost | TBD (v2 rerun in progress, 2026-08-22) |
-| Binary | LogisticRegression | TBD (v2 rerun in progress, 2026-08-22) |
-| Multi-label | XGBoost | TBD (v2 rerun in progress, 2026-08-22) |
-| Multi-label | RandomForest | TBD (v2 rerun in progress, 2026-08-22) |
-| Multi-label | best Conv-Transformer | TBD (v2 rerun in progress, 2026-08-22) |
+| Binary | XGBoost (Optuna, CV-in-train) | **0.9492** [0.9460, 0.9525], FNR 3.72% |
+| Binary | RandomForest | **0.9452** [0.9416, 0.9487], FNR 4.19% |
+| Binary | CatBoost | **0.9350** [0.9309, 0.9385], FNR 6.22% |
+| Binary | LogisticRegression | **0.8900** [0.8862, 0.8939], FNR 6.08% |
+| Multi-label | XGBoost | **0.7646** |
+| Multi-label | RandomForest | 0.6908 |
+| Multi-label | LogisticRegression | 0.4538 |
+| Multi-label | best Conv-Transformer (`C2_dmodel_256`) | 0.6793 |
 
-Values will be filled from the v2 result artifacts in `results/` and
-cross-checked against the paper by `scripts/check_numbers_v2.py`.
+Deep ablation, macro-F1 on the same test split (8 configurations):
+
+- `C2_dmodel_256` — 0.6793
+- `C1_transformer_4layers` — 0.6695
+- `B1_pos_weight` — 0.6641
+- `B5_threshold_tuning_on_best` — 0.6616
+- `B3_focal_pos_weight` — 0.6496
+- `A1_baseline` — 0.6358
+- `B2_focal_g2` — 0.6338
+- `B4_asymmetric` — 0.6267
+
+Every deep configuration falls below the classical multi-label baseline; the gap to the best is 8.53 percentage points. This count is descriptive — the configurations share one dataset and one feature representation, so no binomial test is attached to it.
+
+> **Ablation coverage.** 8 of 10 deep configurations completed: `C3_pure_cnn`, `C4_pure_transformer` did not finish within the GPU allocation for this run and are excluded rather than estimated. Under the v1 (leaking) protocol those ranked 4th and 10th of 10, so neither was the strongest deep configuration there; no claim is made about where they would land here.
+
 
 ## Intended Use
 

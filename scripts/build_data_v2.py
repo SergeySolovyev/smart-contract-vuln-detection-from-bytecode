@@ -35,7 +35,7 @@ import pandas as pd
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-BASE = Path(r"D:\DeFi\Научный_телеграф\kaggle_paper")
+BASE = Path(_ROOT).parent
 OUT = BASE / "v2"
 OUT.mkdir(exist_ok=True)
 
@@ -43,7 +43,7 @@ SEED = 376  # same seed family as v1 for continuity
 LABELS = ["access-control", "arithmetic", "bad-randomness", "double-spending",
           "locked-ether", "other", "reentrancy", "unchecked-calls"]
 FEATURES = json.load(open(
-    r"D:\DeFi\tmp\kaggle_solovev_output_v11\results\feature_columns.json",
+    _pathlib.Path(__file__).resolve().parent.parent / "data" / "feature_columns.json",
     encoding="utf-8"))
 assert len(FEATURES) == 67
 
@@ -141,7 +141,7 @@ for name, part in splits.items():
     manifest[f"positive_rate_{name}"] = float(part["is_vulnerable"].mean())
     step(f"wrote {name}_v2.parquet", len(part))
 
-shutil.copy(r"D:\DeFi\DeFi_AI_dl_study\datasets\label_mappings.json",
+shutil.copy(_pathlib.Path(__file__).resolve().parent.parent / "data" / "label_mappings.json",
             OUT / "label_mappings.json")
 manifest["label_mapping"] = "label_mappings.json (39 Slither detectors -> 8 classes + ignore/safe)"
 (OUT / "manifest_v2.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")

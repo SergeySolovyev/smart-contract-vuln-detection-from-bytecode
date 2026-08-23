@@ -55,21 +55,25 @@ The intended role of the model is not to replace audit tools or formal
 verification. It is a Tier-1 pre-filter: a fast risk-ranking layer that can
 prioritise contracts for deeper analysis.
 
-## Results (v2 — pending)
+## Results (v2)
 
 | Task | Model | Metric | Value |
 |---|---|---|---|
-| Binary any-vulnerability | RandomForest | F1 (test) | TBD (v2 rerun in progress, 2026-08-22) |
-| Binary any-vulnerability | XGBoost (Optuna, 5-fold CV in train) | F1 (test) | TBD (v2 rerun in progress, 2026-08-22) |
-| Binary any-vulnerability | CatBoost | F1 (test) | TBD (v2 rerun in progress, 2026-08-22) |
-| Binary any-vulnerability | LogisticRegression | F1 (test) | TBD (v2 rerun in progress, 2026-08-22) |
-| Multi-label SWC (8 classes) | XGBoost | macro-F1 (test) | TBD (v2 rerun in progress, 2026-08-22) |
-| Multi-label SWC (8 classes) | RandomForest | macro-F1 (test) | TBD (v2 rerun in progress, 2026-08-22) |
-| Multi-label SWC (8 classes) | best Conv-Transformer | macro-F1 (test) | TBD (v2 rerun in progress, 2026-08-22) |
+| Binary any-vulnerability | XGBoost (Optuna, 5-fold CV in train) | F1 (test) | **0.9492** [0.9460, 0.9525], FNR 3.72% |
+| Binary any-vulnerability | RandomForest | F1 (test) | **0.9452** [0.9416, 0.9487], FNR 4.19% |
+| Binary any-vulnerability | CatBoost | F1 (test) | **0.9350** [0.9309, 0.9385], FNR 6.22% |
+| Binary any-vulnerability | LogisticRegression | F1 (test) | **0.8900** [0.8862, 0.8939], FNR 6.08% |
+| Multi-label SWC (8 classes) | XGBoost | macro-F1 (test) | **0.7646** |
+| Multi-label SWC (8 classes) | RandomForest | macro-F1 (test) | 0.6908 |
+| Multi-label SWC (8 classes) | LogisticRegression | macro-F1 (test) | 0.4538 |
+| Multi-label SWC (8 classes) | best Conv-Transformer (`C2_dmodel_256`) | macro-F1 (test) | 0.6793 |
 
-Final v2 numbers will be written to `results/` by the pipeline scripts and
-checked against the paper text by `scripts/check_numbers_v2.py` before any
-release.
+All values are from a single read of the held-out test split (11,247 contracts) under the v2 protocol. Confidence intervals are stratified percentile bootstrap (B=1000). XGBoost beats the best deep configuration on 8/8 classes (sign test p=0.0078; with n=8 the smallest attainable two-sided p is 2/256=0.0078, so this is the floor, not a stronger claim).
+
+> **Ablation coverage.** 8 of 10 deep configurations completed: `C3_pure_cnn`, `C4_pure_transformer` did not finish within the GPU allocation for this run and are excluded rather than estimated. Under the v1 (leaking) protocol those ranked 4th and 10th of 10, so neither was the strongest deep configuration there; no claim is made about where they would land here.
+
+These numbers are generated from `results/` by `scripts/emit_cards_v2.py` and cross-checked against the paper by `scripts/check_numbers_v2.py`; they are not typed by hand.
+
 
 ## Repository Structure
 

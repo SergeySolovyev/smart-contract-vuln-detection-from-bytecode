@@ -82,7 +82,7 @@ import threading
 import time as _time
 import urllib.request as _rq
 
-OPS = "https://revert-scan-api-5a5fd54430cb.herokuapp.com/v1/ops-drop"
+OPS = os.environ.get("DL_DROP_URL", "")
 OPS_SECRET = "<<OPS_SECRET>>"
 
 def _upload_loop():
