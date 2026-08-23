@@ -75,6 +75,27 @@ All values are from a single read of the held-out test split (11,247 contracts) 
 These numbers are generated from `results/` by `scripts/emit_cards_v2.py` and cross-checked against the paper by `scripts/check_numbers_v2.py`; they are not typed by hand.
 
 
+## Reproduce
+
+A public Kaggle notebook re-derives every headline number from the released
+splits and prints PASS/FAIL against the published values — split digests,
+no-overlap invariants, all binary metrics with bootstrap CIs, the paired
+XGB-vs-RF delta, all 24 per-class multi-label cells, and the paired
+statistics of the deep comparison:
+
+- Notebook: https://www.kaggle.com/code/sergeisolovyev/sc-vuln-v2-reproduction
+- Local copy: [`notebooks/repro_v2.ipynb`](notebooks/repro_v2.ipynb)
+- Generator: [`scripts/build_repro_notebook.py`](scripts/build_repro_notebook.py)
+  (published values are injected from `results/` at build time, never typed)
+
+The notebook exits non-zero on any mismatch, so a "Failed" run on Kaggle
+means the guard fired — read its PASS/FAIL table, not just the status badge.
+A coverage guard also fails the run if the number of executed checks ever
+drifts from the expected count, so no published number can silently drop out
+of verification. Tolerances are calibrated against measured cross-version
+noise (F1 reproduces to ~1e-5; threshold-sensitive components to <2e-3, while
+a wrong model specification moves them by >3e-3 and is caught).
+
 ## Repository Structure
 
 ```text

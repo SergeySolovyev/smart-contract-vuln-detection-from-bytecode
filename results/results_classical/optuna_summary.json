@@ -1,0 +1,14 @@
+{
+  "best_cv_f1": 0.9456824514079528,
+  "best_params": {
+    "n_estimators": 1033,
+    "max_depth": 12,
+    "learning_rate": 0.05520690824812322,
+    "subsample": 0.9744252195668149,
+    "colsample_bytree": 0.6684520574911611,
+    "scale_pos_weight": 1.3008716264941094,
+    "min_child_weight": 1
+  },
+  "n_trials": 50,
+  "cv": "5-fold stratified on train only"
+}
