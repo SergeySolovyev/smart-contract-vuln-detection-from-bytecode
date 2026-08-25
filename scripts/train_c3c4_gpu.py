@@ -52,6 +52,30 @@ def log(msg):
     print(msg, flush=True)
 
 
+def push(name, payload):
+    """Third copy of a finished config, to an HTTP inbox.
+
+    stdout survives the VM but only if someone is reading it; this survives
+    even an unattended run that dies before the next poll. Enabled only when
+    the caller supplies both env vars, so the public repo carries no secret
+    and the script stays runnable by anyone without one.
+    """
+    url = os.environ.get("OPS_DROP_URL")
+    secret = os.environ.get("OPS_DROP_SECRET")
+    if not (url and secret):
+        return
+    try:
+        req = urllib.request.Request(
+            f"{url.rstrip('/')}/{name}",
+            data=json.dumps(payload).encode(),
+            headers={"Content-Type": "application/json",
+                     "x-ops-secret": secret})
+        urllib.request.urlopen(req, timeout=60).read()
+        log(f"  pushed {name} to inbox")
+    except Exception as e:  # noqa: BLE001
+        log(f"  inbox push failed ({e}); stdout copy still stands")
+
+
 def fetch(name, size):
     dst = pathlib.Path("data_v2") / name
     dst.parent.mkdir(exist_ok=True)
@@ -162,6 +186,7 @@ def main():
         log(f"ONE_CONFIG_START {name}")
         log(json.dumps(res))
         log(f"ONE_CONFIG_END {name}")
+        push(name, res)
         torch.cuda.empty_cache()
         gc.collect()
 
