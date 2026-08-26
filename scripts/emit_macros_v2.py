@@ -17,19 +17,9 @@ import json
 import sys
 from pathlib import Path
 
-import os as _os
-import pathlib as _pathlib
-
-# Working directory. Defaults to the results/ tree shipped in this
-# repository so the analysis and emit scripts run straight from a checkout;
-# set PAPER_V2_DIR to a full working tree (with the parquet splits and
-# runs_v2/) to regenerate results from scratch.
-_ROOT = _os.environ.get("PAPER_V2_DIR") or str(
-    _pathlib.Path(__file__).resolve().parent.parent / "results")
-
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-BASE = Path(_ROOT)
+BASE = Path(r"D:\DeFi\Научный_телеграф\kaggle_paper\v2")
 RESC = BASE / "results_classical"
 BS = chr(92)  # backslash, kept out of literals to survive shell round-trips
 
@@ -101,6 +91,56 @@ if pd_p.exists():
         macro("vDeltaB", f"{d['B']:,}".replace(",", "{,}")),
     ]
 
+# --- derived wording for the deep ablation -------------------------------
+# Which architectural axes the ablation covers, and what to admit when a
+# config is absent, both follow from the artifacts. Hard-coding either
+# invites prose that outlives the facts -- a caveat naming "two" when only
+# one is missing is as wrong as promising coverage that is not there.
+_DL_DESC = {
+    "C3_pure_cnn": ("pure CNN", "a pure convolutional variant",
+                    "fourth of ten"),
+    "C4_pure_transformer": ("pure Transformer", "a pure Transformer variant",
+                            "last of ten"),
+}
+
+
+def _arch_phrase(missing):
+    axes = ["depth", "width"]
+    for k in ("C3_pure_cnn", "C4_pure_transformer"):
+        if k not in missing:
+            axes.append(_DL_DESC[k][0])
+    if len(axes) == 2:
+        return " and ".join(axes)
+    return ", ".join(axes[:-1]) + ", and " + axes[-1]
+
+
+def _caveat(missing):
+    absent = [k for k in ("C3_pure_cnn", "C4_pure_transformer")
+              if k in missing]
+    if not absent:
+        return ""
+    longs = [_DL_DESC[k][1] for k in absent]
+    ranks = [_DL_DESC[k][2] for k in absent]
+    if len(absent) == 1:
+        head = f"One further architectural ablation ({longs[0]})"
+        be, subj, rank = "is", "it ", f"ranked {ranks[0]}"
+        tail = ("so it was not the strongest deep configuration there; we "
+                "make no claim about where it would land under the present "
+                "protocol.")
+    else:
+        head = (f"Two further architectural ablations ({longs[0]} and "
+                f"{longs[1]})")
+        be, subj = "are", "those two "
+        rank = f"ranked {ranks[0]} and {ranks[1]}"
+        tail = ("so neither was the strongest deep configuration there; we "
+                "make no claim about where they would land under the present "
+                "protocol.")
+    return (f"{head} did not complete within the GPU allocation available for "
+            f"this study and {be} excluded. We flag this rather than omit it "
+            f"silently. Under the earlier, leaking protocol {subj}{rank}, "
+            f"{tail}")
+
+
 _EXPECTED_DL = ["A1_baseline", "B1_pos_weight", "B2_focal_g2",
                 "B3_focal_pos_weight", "B4_asymmetric",
                 "B5_threshold_tuning_on_best", "C1_transformer_4layers",
@@ -133,23 +173,13 @@ if st_p.exists():
             macro("vDlLosing", str(s["stats"]["model_level"]["dl_configs_below_xgb_macro"])),
             macro("vDlOf", str(s["stats"]["model_level"]["of"])),
             macro("vDlNConfigs", str(len(dl))),
-            # The architecture list and the limitation note are DERIVED, not
-            # typed. With two configs missing, prose promising "pure CNN and
-            # pure Transformer" would claim coverage the run does not have.
-            # If the missing pair ever lands, these macros silently become
-            # the full-coverage wording and the caveat becomes empty.
-            macro("vDlArch",
-                  "depth, width, pure CNN, and pure Transformer"
-                  if not _missing else "depth and width"),
-            macro("vDlCaveat", "" if not _missing else
-                  "Two further architectural ablations (a pure convolutional "
-                  "and a pure Transformer variant) did not complete within "
-                  "the GPU allocation available for this study and are "
-                  "excluded. We flag this rather than omit it silently. "
-                  "Under the earlier, leaking protocol those two ranked "
-                  "fourth and last of ten, so neither was the strongest deep "
-                  "configuration there; we make no claim about where they "
-                  "would land under the present protocol."),
+            # The architecture list and the limitation note are DERIVED from
+            # which configs actually landed, never typed. Prose promising
+            # "pure CNN and pure Transformer" would claim coverage the run
+            # may not have, and a caveat naming "two" when only one is absent
+            # is equally wrong -- so both are computed from _missing.
+            macro("vDlArch", _arch_phrase(_missing)),
+            macro("vDlCaveat", _caveat(_missing)),
         ]
         out += macros_dl
 else:

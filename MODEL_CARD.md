@@ -74,11 +74,12 @@ The released feature extractor is documented in
 | Multi-label | LogisticRegression | 0.4538 |
 | Multi-label | best Conv-Transformer (`C2_dmodel_256`) | 0.6793 |
 
-Deep ablation, macro-F1 on the same test split (8 configurations):
+Deep ablation, macro-F1 on the same test split (9 configurations):
 
 - `C2_dmodel_256` — 0.6793
 - `C1_transformer_4layers` — 0.6695
 - `B1_pos_weight` — 0.6641
+- `C3_pure_cnn` — 0.6640
 - `B5_threshold_tuning_on_best` — 0.6616
 - `B3_focal_pos_weight` — 0.6496
 - `A1_baseline` — 0.6358
@@ -87,7 +88,7 @@ Deep ablation, macro-F1 on the same test split (8 configurations):
 
 Every deep configuration falls below the classical multi-label baseline; the gap to the best is 8.53 percentage points. This count is descriptive — the configurations share one dataset and one feature representation, so no binomial test is attached to it.
 
-> **Ablation coverage.** 8 of 10 deep configurations completed: `C3_pure_cnn`, `C4_pure_transformer` did not finish within the GPU allocation for this run and are excluded rather than estimated. Under the v1 (leaking) protocol those ranked 4th and 10th of 10, so neither was the strongest deep configuration there; no claim is made about where they would land here.
+> **Ablation coverage.** 9 of 10 deep configurations completed: `C4_pure_transformer` did not finish within the GPU allocation for this run and are excluded rather than estimated. Under the v1 (leaking) protocol those ranked 4th and 10th of 10, so neither was the strongest deep configuration there; no claim is made about where they would land here.
 
 
 ## Intended Use

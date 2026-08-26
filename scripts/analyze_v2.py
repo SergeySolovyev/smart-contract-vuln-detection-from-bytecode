@@ -27,19 +27,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-import os as _os
-import pathlib as _pathlib
-
-# Working directory. Defaults to the results/ tree shipped in this
-# repository so the analysis and emit scripts run straight from a checkout;
-# set PAPER_V2_DIR to a full working tree (with the parquet splits and
-# runs_v2/) to regenerate results from scratch.
-_ROOT = _os.environ.get("PAPER_V2_DIR") or str(
-    _pathlib.Path(__file__).resolve().parent.parent / "results")
-
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-BASE = Path(_ROOT)
+BASE = Path(r"D:\DeFi\Научный_телеграф\kaggle_paper\v2")
 RUNS = BASE / "runs_v2"
 RESC = BASE / "results_classical"
 FIGS = BASE / "figures"
