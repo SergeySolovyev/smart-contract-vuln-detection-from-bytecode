@@ -137,9 +137,19 @@ so a clean sweep means ``eight out of eight'' and nothing stronger. The sign
 test and the Wilcoxon signed-rank test applied to the same eight numbers are
 the same evidence reported twice, not two independent confirmations; we
 report the sign test only. XGBoost wins \vDlWins{} classes against
-\vDlBestName{} at $p = \vDlPsign$ (Figure~\ref{fig:heatmap-v2}). Across the family of \vDlNConfigs{}
-comparisons we apply a Holm correction; whether this particular comparison
-survives it is reported as \vDlHolm. At the model level, \vDlLosing{} of
+\vDlBestName{} at $p = \vDlPsign$ (Figure~\ref{fig:heatmap-v2}).
+
+Across the family of \vDlNConfigs{} comparisons a Holm step-down correction
+admits nothing, and we state plainly why: Holm requires the smallest
+$p$ to fall below $\alpha/m = \vDlHolmThr$, while the sign test at $n=8$
+cannot go below $2/256 = 0.0078$. Family-wise significance is therefore
+unreachable \emph{by construction} at this design --- the binding constraint
+is the number of classes, not the size of the effect. We report this rather
+than quietly testing each comparison against its own threshold, which would
+mark the later ones significant on thresholds that only become available
+once the earlier, stricter ones have been rejected. What the data do support
+is stated without inference: XGBoost wins every class against every deep
+configuration. At the model level, \vDlLosing{} of
 \vDlOf{} deep configurations fall below the classical baseline. We report
 that count descriptively and attach no binomial $p$-value to it: the
 configurations share one dataset and one feature representation, so the

@@ -243,7 +243,7 @@
         "p_sign": 0.0078125,
         "p_wilcoxon": 0.0078125,
         "holm_alpha": 0.008333333333333333,
-        "significant_after_holm": true
+        "significant_after_holm": false
       },
       "B5_threshold_tuning_on_best": {
         "dl_macro": 0.6616288349032402,
@@ -253,7 +253,7 @@
         "p_sign": 0.0078125,
         "p_wilcoxon": 0.0078125,
         "holm_alpha": 0.01,
-        "significant_after_holm": true
+        "significant_after_holm": false
       },
       "C1_transformer_4layers": {
         "dl_macro": 0.6694887205958366,
@@ -263,7 +263,7 @@
         "p_sign": 0.0078125,
         "p_wilcoxon": 0.0078125,
         "holm_alpha": 0.0125,
-        "significant_after_holm": true
+        "significant_after_holm": false
       },
       "C2_dmodel_256": {
         "dl_macro": 0.6793216913938522,
@@ -273,7 +273,7 @@
         "p_sign": 0.0078125,
         "p_wilcoxon": 0.0078125,
         "holm_alpha": 0.016666666666666666,
-        "significant_after_holm": true
+        "significant_after_holm": false
       },
       "C3_pure_cnn": {
         "dl_macro": 0.6639625951647758,
@@ -283,7 +283,7 @@
         "p_sign": 0.0078125,
         "p_wilcoxon": 0.0078125,
         "holm_alpha": 0.025,
-        "significant_after_holm": true
+        "significant_after_holm": false
       },
       "C4_pure_transformer": {
         "dl_macro": 0.6215415839105844,
@@ -293,8 +293,16 @@
         "p_sign": 0.0078125,
         "p_wilcoxon": 0.0078125,
         "holm_alpha": 0.05,
-        "significant_after_holm": true
+        "significant_after_holm": false
       }
+    },
+    "holm": {
+      "family_size": 10,
+      "alpha": 0.05,
+      "first_threshold": 0.005,
+      "smallest_p": 0.0078125,
+      "any_significant": false,
+      "note": "Holm step-down. With n=8 classes the sign test floor is 2/256=0.0078125, above alpha/m for any family of 7 or more, so family-wise significance is unreachable by construction here -- a limit of the class count, not evidence of a weak effect."
     },
     "model_level": {
       "dl_configs_below_xgb_macro": 10,

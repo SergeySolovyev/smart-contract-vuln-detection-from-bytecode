@@ -169,7 +169,13 @@ if st_p.exists():
             macro("vDlGap", f"{c['gap_pp']:.2f}"),
             macro("vDlWins", f"{c['xgb_wins_of_8']}/8"),
             macro("vDlPsign", f"{c['p_sign']:.3f}"),
-            macro("vDlHolm", "yes" if c["significant_after_holm"] else "no"),
+            macro("vDlHolm",
+                  "yes" if c["significant_after_holm"] else "no"),
+            # Holm's first threshold, so the paper can say WHY nothing
+            # clears it instead of just reporting that nothing does.
+            macro("vDlHolmThr",
+                  f"{s['stats']['holm']['first_threshold']:.4f}"),
+            macro("vDlHolmFam", str(s["stats"]["holm"]["family_size"])),
             macro("vDlLosing", str(s["stats"]["model_level"]["dl_configs_below_xgb_macro"])),
             macro("vDlOf", str(s["stats"]["model_level"]["of"])),
             macro("vDlNConfigs", str(len(dl))),

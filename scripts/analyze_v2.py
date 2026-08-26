@@ -145,13 +145,44 @@ for k, v in sorted(dl.items()):
         "xgb_wins_of_8": wins, "p_sign": p_sign, "p_wilcoxon": p_w}
     pvals.append((k, p_sign))
 
-# Holm over the 10 sign tests (report family-corrected significance honestly)
+# Holm-Bonferroni over the sign tests, with the STEP-DOWN rule.
+#
+# Holm is sequential: sort ascending, compare p_(i) against alpha/(m-i), and
+# STOP at the first failure -- every remaining hypothesis is retained too.
+# Testing each p against its own threshold independently (the earlier bug
+# here) lets later hypotheses "pass" on the looser thresholds that only
+# become available once the earlier, stricter ones have been rejected. With
+# ten identical p = 0.0078125 it marked six of ten significant when the
+# correct answer is none: the smallest p already exceeds alpha/10 = 0.005.
+#
+# That is a property of the design, not a weak effect. A sign test on n=8
+# classes cannot produce a p below 2/256 = 0.0078, so no comparison in a
+# family of ten can clear Holm's first threshold. The ceiling is the class
+# count; the effect itself (8/8 in every configuration) is not in doubt.
 pv_sorted = sorted(pvals, key=lambda t: t[1])
 m = len(pv_sorted)
+ALPHA = 0.05
+still_rejecting = True
 for rank, (k, p) in enumerate(pv_sorted):
-    stats["comparisons"][k]["holm_alpha"] = 0.05 / (m - rank)
-    stats["comparisons"][k]["significant_after_holm"] = bool(
-        p <= 0.05 / (m - rank))
+    thr = ALPHA / (m - rank)
+    if still_rejecting and p > thr:
+        still_rejecting = False
+    stats["comparisons"][k]["holm_alpha"] = thr
+    stats["comparisons"][k]["significant_after_holm"] = bool(still_rejecting)
+
+stats["holm"] = {
+    "family_size": m,
+    "alpha": ALPHA,
+    "first_threshold": ALPHA / m,
+    "smallest_p": pv_sorted[0][1] if pv_sorted else None,
+    "any_significant": any(
+        stats["comparisons"][k]["significant_after_holm"] for k, _ in pv_sorted),
+    "note": ("Holm step-down. With n=8 classes the sign test floor is "
+             "2/256=0.0078125, above alpha/m for any family of 7 or more, "
+             "so family-wise significance is unreachable by construction "
+             "here -- a limit of the class count, not evidence of a weak "
+             "effect."),
+}
 
 n_losing = sum(1 for v in dl.values()
                if v["macro_f1"] is not None and v["macro_f1"] < xgbv.mean())
