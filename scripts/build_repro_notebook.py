@@ -532,7 +532,14 @@ nb = {"cells": cells,
 meta = {"id": "sergeisolovyev/sc-vuln-v2-reproduction",
         "title": "SC Vuln v2 Reproduction",
         "code_file": "repro_v2.ipynb", "language": "python",
-        "kernel_type": "notebook", "is_private": True,
+        # PUBLIC, and it must stay that way. The paper states that a public
+        # notebook re-derives every headline number, so a private one makes
+        # the paper wrong -- a reviewer without an account gets a 404. This
+        # defaulted to True, and every regeneration after a fix silently
+        # re-closed a notebook that had been opened by hand. Worse, checking
+        # it with an authenticated CLI finds one's own private kernel and
+        # reports success. Verify from a logged-out client, never from here.
+        "kernel_type": "notebook", "is_private": False,
         "enable_gpu": False, "enable_internet": False,
         "dataset_sources": ["sergeisolovyev/defi-bytecode-features-v2"],
         "competition_sources": [], "kernel_sources": []}
