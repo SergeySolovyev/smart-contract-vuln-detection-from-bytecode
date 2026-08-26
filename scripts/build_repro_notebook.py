@@ -463,9 +463,19 @@ for cfg, per in sorted(PUBLISHED["dl"].items()):
     rows.append((cfg, float(c.mean()), wins, float(p)))
     pvals.append((cfg, float(p)))
 
+# Holm STEP-DOWN. Sort ascending, compare p_(i) to alpha/(m-i), and stop at
+# the first failure -- everything after it is retained too. Testing each p
+# against its own threshold independently (what stood here) lets later
+# hypotheses pass on the looser thresholds that only become available once
+# the stricter ones have been rejected. With ten identical p = 0.0078125
+# that marked six of ten significant; the correct answer is none, because
+# the smallest p already exceeds alpha/10 = 0.005.
 m = len(pvals)
-holm = {k: p <= 0.05 / (m - r)
-        for r, (k, p) in enumerate(sorted(pvals, key=lambda t: t[1]))}
+holm, _rejecting = {}, True
+for _r, (_k, _p) in enumerate(sorted(pvals, key=lambda t: t[1])):
+    if _rejecting and _p > 0.05 / (m - _r):
+        _rejecting = False
+    holm[_k] = _rejecting
 
 print(f"{'config':32s} {'macro-F1':>9s} {'XGB wins':>9s} {'p_sign':>8s}  Holm")
 for cfg, macro, wins, p in sorted(rows, key=lambda t: -t[1]):
