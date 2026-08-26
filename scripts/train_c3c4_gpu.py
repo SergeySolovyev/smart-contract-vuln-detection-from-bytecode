@@ -55,6 +55,13 @@ def log(msg):
 def push(name, payload):
     """Third copy of a finished config, to an HTTP inbox.
 
+    Sends the WHOLE result, never a trimmed view. An earlier emergency
+    channel forwarded only the metrics to save bandwidth, and it did save
+    the numbers when the session died -- but six configurations reached the
+    archive without config, history or timing, and those fields cannot be
+    recovered because the sessions that held them are gone. A rescue path
+    that drops provenance rescues the report and loses the run.
+
     stdout survives the VM but only if someone is reading it; this survives
     even an unattended run that dies before the next poll. Enabled only when
     the caller supplies both env vars, so the public repo carries no secret
