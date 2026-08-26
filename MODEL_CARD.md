@@ -28,7 +28,7 @@ The model is intended as a first-stage screening system for EVM bytecode. It
 estimates agreement with Slither-derived vulnerability labels and ranks
 contracts for deeper analysis. It is not a final security verdict.
 
-## Status: v1 metrics retracted, v2 rerun in progress
+## Status: v1 metrics retracted, v2 rerun complete
 
 All previously published metric values (v1) are **retracted**: the v1
 evaluation used a leaky split (4.76% of validation rows feature-identical

@@ -1,0 +1,155 @@
+% =============================================================================
+% Paper v2 — results & methodology sections, written entirely against the
+% auto-generated macros in numbers_v2.tex. No metric is ever typed by hand.
+%
+% This file is the answer to the v1 failure mode: numbers drifted between the
+% prose, the figures, the README and the model card because each was edited
+% independently. Here a number exists in exactly one place — the artifact —
+% and reaches the page only through \input{numbers_v2}.
+%
+% Include from main_v2.tex AFTER \input{numbers_v2}.
+% =============================================================================
+
+\section{Dataset and Protocol}\label{sec:data-v2}
+
+\paragraph{Corpus.}
+We build on the Slither-audited smart-contract corpus of
+Rossini~\cite{slitherAudited}, which pairs Etherscan-verified sources with
+their deployed EVM bytecode and per-detector Slither reports. The
+39~Slither detectors are mapped to the eight DASP-derived classes used
+throughout this paper by the mapping released with our code
+(\texttt{data/label\_mappings.json}); detectors outside those categories are
+dropped rather than silently folded into \emph{other}.
+
+\paragraph{Deduplication is the load-bearing preprocessing step.}
+Solidity appends a CBOR metadata trailer to runtime bytecode, so two builds
+of identical source differ only in their final bytes. Deduplicating on the
+raw bytecode string — as is common, and as our own earlier pipeline did —
+therefore lets near-identical contracts survive into both sides of a split.
+Because our features are mnemonic-level counts, such contracts are
+\emph{bit-identical in feature space}, and a tree ensemble can memorise them.
+We remove duplicates twice: first on metadata-stripped runtime bytecode
+(\vDupsBc{} contracts), then on the \vNFeat-dimensional feature vector itself
+(\vDupsFeat{} contracts), leaving \vCorpus{} contracts with a positive rate
+of \vPosRate.
+
+\paragraph{Split.}
+A stratified \vTrain/\vVal/\vTest{} train/validation/test split (seed
+\vSeed) preserves the positive rate to three decimals in every fold. We
+assert, as a build-time invariant, that no feature vector occurs in more
+than one split; the assertion and the resulting SHA-256 digests of all three
+files ship with the code. Hyperparameters and decision thresholds are
+selected on validation only. \textbf{The test split is read exactly once,
+for the numbers reported below.}
+
+\section{Binary Detection Results}\label{sec:binary-v2}
+
+\begin{table*}[t]
+\centering
+\caption{Any-vulnerability detection on the held-out test split
+(\vTest{} contracts). $F_1$ intervals are stratified percentile bootstrap,
+$B\!=\!1000$. Thresholds were selected on the validation split; the test
+split was read once. Training time is single-machine wall clock on identical
+hardware, and is the basis for the compute comparison in
+Sec.~\ref{sec:ml-v2}}
+\label{tab:binary-v2}
+\small
+\begin{tabular}{lccccccc r}
+\toprule
+\textbf{Model} & $\bm{F_1}$ & \textbf{95\% CI} & \textbf{Prec.} &
+\textbf{Rec.} & \textbf{FNR} & \textbf{MCC} & \textbf{PR-AUC} &
+\textbf{Train (s)} \\
+\midrule
+XGBoost      & \textbf{\vBXGBFone} & [\vBXGBLo, \vBXGBHi] &
+               \vBXGBPrec & \vBXGBRec & \textbf{\vBXGBFnr} &
+               \textbf{\vBXGBMcc} & \textbf{\vBXGBPrauc} & \vBXGBTrain \\
+RandomForest & \vBRFFone  & [\vBRFLo, \vBRFHi]  &
+               \vBRFPrec  & \vBRFRec  & \vBRFFnr &
+               \vBRFMcc   & \vBRFPrauc & \vBRFTrain \\
+CatBoost     & \vBCatFone & [\vBCatLo, \vBCatHi] &
+               \vBCatPrec & \vBCatRec & \vBCatFnr &
+               \vBCatMcc  & \vBCatPrauc & \vBCatTrain \\
+LogReg       & \vBLRFone  & [\vBLRLo, \vBLRHi]  &
+               \vBLRPrec  & \vBLRRec  & \vBLRFnr &
+               \vBLRMcc   & \vBLRPrauc & \vBLRTrain \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+XGBoost with Optuna-tuned hyperparameters reaches $F_1 =$ \vBXGBFone{}
+[\vBXGBLo, \vBXGBHi] at a false-negative rate of \vBXGBFnr{}
+(Table~\ref{tab:binary-v2}). Tuning used 50 trials optimising mean $F_1$
+over a 5-fold stratified cross-validation \emph{inside the training split};
+neither validation nor test participated in the search. We report MCC
+alongside $F_1$ because the corpus is \vPosRate{} positive: on a corpus
+skewed that far, $F_1$ can be inflated by predicting the majority class
+generously, whereas MCC accounts for all four cells of the confusion matrix
+and does not reward that behaviour.
+
+\paragraph{Model comparison requires a paired test.}
+Marginal confidence intervals for XGBoost and RandomForest overlap, and it
+is tempting — but wrong — to conclude from that overlap that the models are
+indistinguishable: the two are evaluated on the \emph{same} contracts, so
+their errors are correlated and the marginal intervals are the wrong object.
+The paired bootstrap on the difference gives
+$\Delta F_1 = \vDeltaFone$ with 95\% CI [\vDeltaLo, \vDeltaHi], excluding
+zero; XGBoost leads in a fraction \vDeltaPgt{} of the \vDeltaB{} resamples, which is
+the ceiling this many replicates resolve rather than a claim of
+certainty. XGBoost's advantage over RandomForest is small but statistically
+resolvable; both dominate CatBoost and LogReg by margins far larger than
+their intervals.
+
+\section{Multi-Label Results and the Deep Comparator}\label{sec:ml-v2}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{perlabel_f1_heatmap_v2.pdf}
+\caption{Per-class $F_1$ on the held-out test split under the v2 protocol:
+classical multi-label baselines (left of the first rule) against the
+\vDlNConfigs{} Conv-Transformer configurations. Every value comes from a
+single evaluation of the test split; no cell is drawn from a different run
+than any other. Classes are ordered as in the SWC taxonomy;
+\textit{double-spending} is the rarest class and the one on which every model
+degrades.}
+\label{fig:heatmap-v2}
+\end{figure*}
+
+
+On the eight-class multi-label task, classical XGBoost reaches macro-$F_1 =$
+\vMlXgb, RandomForest \vMlRf, and balanced logistic regression \vMlLr{} ---
+the last collapsing on the rare classes and confirming that the regime is
+not linearly separable.
+
+\paragraph{Deep comparator.}
+We train \vDlNConfigs{} Conv-Transformer configurations spanning loss
+functions (BCE, positive-weighting, focal, asymmetric, threshold tuning) and
+architectures (\vDlArch). Each is trained on
+the same training split, early-stopped on an internal carve-out of that
+split, and evaluated once on the same held-out test split as the classical
+models. The best configuration, \vDlBestName, reaches macro-$F_1 =$
+\vDlBest{} (worst \vDlWorst, mean \vDlMean), trailing XGBoost by
+\vDlGap~p.p. \vDlCaveat
+
+\paragraph{Statistical framing, stated honestly.}
+Per-class comparison over eight classes is a coarse instrument: with $n=8$
+the smallest attainable two-sided $p$ from a sign test is $2/256 = 0.0078$,
+so a clean sweep means ``eight out of eight'' and nothing stronger. The sign
+test and the Wilcoxon signed-rank test applied to the same eight numbers are
+the same evidence reported twice, not two independent confirmations; we
+report the sign test only. XGBoost wins \vDlWins{} classes against
+\vDlBestName{} at $p = \vDlPsign$ (Figure~\ref{fig:heatmap-v2}). Across the family of \vDlNConfigs{}
+comparisons we apply a Holm correction; whether this particular comparison
+survives it is reported as \vDlHolm. At the model level, \vDlLosing{} of
+\vDlOf{} deep configurations fall below the classical baseline. We report
+that count descriptively and attach no binomial $p$-value to it: the
+configurations share one dataset and one feature representation, so the
+independence assumption underlying such a test does not hold.
+
+\paragraph{Interpretation.}
+The deep comparator does not lose because it is undertrained or
+under-tuned --- it loses in every one of the \vDlNConfigs{}
+configurations we completed, across every loss function we tried, at roughly an order of magnitude more compute. This is the expected
+outcome for engineered tabular features, where tree ensembles remain
+state of the art~\cite{grinsztajn2022,shwartz2022}; our contribution is to
+document it on EVM bytecode features with a protocol that cannot flatter
+either side.

@@ -140,6 +140,6 @@ label_cols = [
             Detection from {EVM} Bytecode: Binary and Multi-Label
             Classification with a Deep-Learning Comparator},
   year   = {2026},
-  note   = {Preprint. v2 evaluation in progress}
+  note   = {Preprint. v2 evaluation complete; v1 metrics retracted}
 }
 ```

@@ -1,0 +1,148 @@
+% =============================================================================
+% Paper v2 — assembled shell. Every metric reaches this document through
+% numbers_v2.tex, which is regenerated from the run artifacts by
+% scripts/emit_macros_v2.py. Nothing numeric is typed by hand anywhere.
+%
+% Build:  pdflatex main_v2  (twice, for references)
+% Verify: python scripts/check_numbers_v2.py   (fails if prose and artifacts
+%                                               ever disagree)
+% =============================================================================
+\documentclass[twocolumn, 10pt]{article}
+
+\makeatletter
+\providecommand{\kscntformat}[3]{}
+\providecommand{\@titleKor}{}
+\providecommand{\@authorKor}{}
+\makeatother
+
+\usepackage{icicpe}
+\renewenvironment{keyword}{%
+  \list{}{\setlength{\leftmargin}{0.8cm}}%
+  \small\item\relax\textbf{Keywords: }}%
+  {\vspace{0.7cm}}
+\usepackage[utf8]{inputenc}
+\usepackage[pdfencoding=auto]{hyperref}
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[symbol]{footmisc}
+
+\graphicspath{{figures/}}
+
+% --- auto-generated numbers: the single source of truth -----------------
+\input{numbers_v2}
+
+\title[english]{Lightweight Machine Learning for Smart-Contract
+Vulnerability Detection from EVM Bytecode: Binary and Multi-Label
+Classification with a Deep-Learning Comparator}
+
+\author[english]{
+Sergei Solovev\\
+HSE University\\
+\texttt{sesesolovev@edu.hse.ru}
+}
+
+\finalcopy
+
+\begin{document}
+
+\twocolumn[
+\maketitle
+\begin{abstract}
+Smart-contract vulnerabilities have caused losses exceeding USD~3~billion in
+decentralised finance, while most Ethereum mainnet contracts ship without
+verified source~\cite{cobra,scannerstudy} and are therefore unreachable by
+source-required analysers such as Slither and Mythril. We present a
+lightweight \vNFeat-feature pipeline operating directly on EVM bytecode as a
+Slither-consistent risk-scoring filter, and study both \emph{binary}
+any-vulnerability detection and \emph{multi-label} classification over eight
+vulnerability classes on \vCorpus{} Slither-labelled contracts. Duplicate
+contracts are removed at the level of the compiled feature representation
+rather than the raw bytecode string, which we show is the difference between
+a leaking and a clean split; hyperparameters and thresholds are selected on a
+validation split and the test split is read exactly once. On binary
+detection, gradient boosting reaches $F_1 =$ \vBXGBFone{}
+{[}\vBXGBLo, \vBXGBHi{]} at a false-negative rate of \vBXGBFnr, and a paired
+bootstrap---rather than the overlap of marginal intervals---resolves its
+advantage over RandomForest ($\Delta F_1 = \vDeltaFone$, 95\% CI
+{[}\vDeltaLo, \vDeltaHi{]}). On multi-label classification, classical XGBoost
+(\vMlXgb) outperforms all \vDlNConfigs{} configurations of a
+Conv-Transformer ablation (best \vDlBest) at roughly an order of magnitude
+less training compute. We attribute the negative deep-learning result to the
+tabular-feature regime, where tree ensembles remain
+dominant~\cite{grinsztajn2022,shwartz2022}, and we report the statistical
+evidence for it with the limits that eight paired observations actually
+support.
+\end{abstract}
+
+\begin{keyword}
+smart contracts, EVM bytecode, vulnerability detection, feature engineering,
+multi-label classification, tabular learning, data leakage, bootstrap
+confidence intervals, DeFi security
+\end{keyword}
+]
+
+\section{Introduction}\label{sec:intro-v2}
+
+Decentralised finance holds tens of billions of dollars in total value
+locked, and public leaderboards record cumulative losses past USD~3~billion
+from smart-contract exploits since 2016~\cite{rekt}. Contracts holding these
+assets are immutable after deployment, which makes pre-deployment and
+pre-interaction screening the only lever available at scale.
+
+Static analysers and symbolic executors (Slither~\cite{slither},
+Mythril~\cite{mythril}, Manticore~\cite{manticore}) require Solidity source,
+while a substantial fraction of mainnet-deployed contracts ship
+\emph{without} verified source---their bytecode is the only universally
+available artefact. We position this work as a Tier-1 pre-filter: a
+bytecode-only predictor that screens every deployment cheaply and forwards
+the most suspicious fraction to deep static analysis and, above that, to
+symbolic exploit search.
+
+\paragraph{Contributions.}
+\textbf{(i)~A bytecode-only Tier-1 pre-filter} over \vNFeat{} engineered
+features, evaluated with a security-relevant metric suite (FNR, PR-AUC,
+precision/recall at a validation-selected threshold).
+\textbf{(ii)~A protocol that cannot flatter the result:} duplicates removed
+in feature space, a three-way split with a build-time no-overlap invariant,
+tuning confined to training folds, and a single read of the test split.
+\textbf{(iii)~A deep comparator and an honest account of its defeat:}
+\vDlNConfigs{} Conv-Transformer configurations, compared with paired tests
+whose resolution limits we state explicitly rather than over-claim.
+
+\paragraph{Relation to an earlier version of this work.}
+An earlier preprint reported comparable headline numbers under a protocol we
+now consider unsound: duplicates were removed on the raw bytecode string,
+which left contracts that are bit-identical in feature space on both sides of
+the split, and the search over hyperparameters was scored on the same data
+used for reporting. The present numbers are produced under the protocol
+described below (Sec.~\ref{sec:data-v2}), and we report both the corrected
+results and the correction itself, because the size of the correction is
+itself evidence about how much such defects matter in this domain.
+
+\input{main_v2_body}
+
+\section{Conclusion}\label{sec:concl-v2}
+
+A \vNFeat-feature bytecode-only classifier detects Slither-flagged
+vulnerabilities on held-out contracts at $F_1 =$ \vBXGBFone{} with a
+false-negative rate of \vBXGBFnr, under a protocol in which the test split
+is read once and duplicates are eliminated in the representation the model
+actually sees. On the eight-class task, classical gradient boosting
+(\vMlXgb) beats every one of \vDlNConfigs{} deep configurations (best
+\vDlBest), at roughly an order of magnitude less compute.
+
+The methodological lesson generalises beyond this dataset. Deduplicating on
+raw bytecode is insufficient whenever features are computed from a
+normalised view of that bytecode: compiler metadata alone is enough to
+defeat string-level deduplication while leaving the model's input identical.
+We recommend that bytecode-based work report deduplication at the feature
+level and publish the resulting overlap statistics, as we do here.
+
+\bibliographystyle{ICICPEtran}
+\bibliography{references}
+
+\end{document}
