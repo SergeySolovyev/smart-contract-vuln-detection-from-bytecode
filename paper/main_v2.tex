@@ -54,8 +54,9 @@ HSE University\\
 \begin{abstract}
 Smart-contract vulnerabilities have caused losses exceeding USD~3~billion in
 decentralised finance, while most Ethereum mainnet contracts ship without
-verified source~\cite{cobra,scannerstudy} and are therefore unreachable by
-source-required analysers such as Slither and Mythril. We present a
+verified source~\cite{cobra,scannerstudy}, placing them beyond source-required
+analysers such as Slither and leaving symbolic executors, which do read
+bytecode, too costly to run on every deployment. We present a
 lightweight \vNFeat-feature pipeline operating directly on EVM bytecode as a
 Slither-consistent risk-scoring filter, and study both \emph{binary}
 any-vulnerability detection and \emph{multi-label} classification over eight
@@ -93,14 +94,22 @@ from smart-contract exploits since 2016~\cite{rekt}. Contracts holding these
 assets are immutable after deployment, which makes pre-deployment and
 pre-interaction screening the only lever available at scale.
 
-Static analysers and symbolic executors (Slither~\cite{slither},
-Mythril~\cite{mythril}, Manticore~\cite{manticore}) require Solidity source,
-while a substantial fraction of mainnet-deployed contracts ship
-\emph{without} verified source---their bytecode is the only universally
-available artefact. We position this work as a Tier-1 pre-filter: a
-bytecode-only predictor that screens every deployment cheaply and forwards
-the most suspicious fraction to deep static analysis and, above that, to
-symbolic exploit search.
+Two distinct obstacles stand between a deployed contract and existing
+analysis, and conflating them overstates the case. Source-level static
+analysers such as Slither~\cite{slither} require Solidity source, which a
+substantial fraction of mainnet-deployed contracts never publish---for those,
+bytecode is the only universally available artefact. Symbolic executors such
+as Mythril~\cite{mythril} and Manticore~\cite{manticore} do
+\emph{not} share that limitation: both operate on EVM bytecode directly. Their
+constraint is cost. Symbolic execution spends seconds to minutes per contract
+and grows worse with path count, which is affordable for a contract already
+under suspicion and not for every deployment on the chain.
+
+We position this work against the second obstacle rather than the first. It
+is a Tier-1 pre-filter: a predictor cheap enough to score every deployment,
+whose output decides where the expensive tools are pointed. Its value is not
+that deeper tools cannot run on bytecode, but that they cannot run on
+\emph{everything}.
 
 \paragraph{Contributions.}
 \textbf{(i)~A bytecode-only Tier-1 pre-filter} over \vNFeat{} engineered
