@@ -42,6 +42,18 @@ files ship with the code. Hyperparameters and decision thresholds are
 selected on validation only. \textbf{The test split is read exactly once,
 for the numbers reported below.}
 
+Reading the test split once buys protection against tuning on it, and it
+costs something we state rather than leave implicit: every number here comes
+from one draw of the split. The bootstrap intervals quantify sampling
+variability \emph{within} the \vTest{} test contracts, not variability across
+alternative partitions of the corpus. We did not repeat the protocol under
+other seeds, so the point estimates carry an unquantified split-to-split
+component. The comparison the paper turns on is not delicate at that scale
+--- \vDlGap~p.p.\ separating XGBoost from the strongest of \vDlNConfigs{}
+deep configurations, with a per-class sweep in each --- but a reader
+weighing the third decimal of a single F1 should know which uncertainty the
+intervals cover and which they do not.
+
 \section{Binary Detection Results}\label{sec:binary-v2}
 
 \begin{table*}[t]
