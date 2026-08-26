@@ -175,6 +175,21 @@
       ],
       "train_time_sec": 1270.9956171512604,
       "params_m": 0.568584
+    },
+    "C4_pure_transformer": {
+      "macro_f1": 0.6215415596961975,
+      "f1_per_label": [
+        0.6534653306007385,
+        0.6143849492073059,
+        0.551928699016571,
+        0.21686746180057526,
+        0.5888198614120483,
+        0.6903778314590454,
+        0.8004627227783203,
+        0.8560258150100708
+      ],
+      "train_time_sec": 6697.476310014725,
+      "params_m": 0.504328
     }
   },
   "stats": {
@@ -187,7 +202,7 @@
         "xgb_wins_of_8": 8,
         "p_sign": 0.0078125,
         "p_wilcoxon": 0.0078125,
-        "holm_alpha": 0.005555555555555556,
+        "holm_alpha": 0.005,
         "significant_after_holm": false
       },
       "B1_pos_weight": {
@@ -197,7 +212,7 @@
         "xgb_wins_of_8": 8,
         "p_sign": 0.0078125,
         "p_wilcoxon": 0.0078125,
-        "holm_alpha": 0.00625,
+        "holm_alpha": 0.005555555555555556,
         "significant_after_holm": false
       },
       "B2_focal_g2": {
@@ -207,7 +222,7 @@
         "xgb_wins_of_8": 8,
         "p_sign": 0.0078125,
         "p_wilcoxon": 0.0078125,
-        "holm_alpha": 0.0071428571428571435,
+        "holm_alpha": 0.00625,
         "significant_after_holm": false
       },
       "B3_focal_pos_weight": {
@@ -217,8 +232,8 @@
         "xgb_wins_of_8": 8,
         "p_sign": 0.0078125,
         "p_wilcoxon": 0.0078125,
-        "holm_alpha": 0.008333333333333333,
-        "significant_after_holm": true
+        "holm_alpha": 0.0071428571428571435,
+        "significant_after_holm": false
       },
       "B4_asymmetric": {
         "dl_macro": 0.6266837157309055,
@@ -227,7 +242,7 @@
         "xgb_wins_of_8": 8,
         "p_sign": 0.0078125,
         "p_wilcoxon": 0.0078125,
-        "holm_alpha": 0.01,
+        "holm_alpha": 0.008333333333333333,
         "significant_after_holm": true
       },
       "B5_threshold_tuning_on_best": {
@@ -237,7 +252,7 @@
         "xgb_wins_of_8": 8,
         "p_sign": 0.0078125,
         "p_wilcoxon": 0.0078125,
-        "holm_alpha": 0.0125,
+        "holm_alpha": 0.01,
         "significant_after_holm": true
       },
       "C1_transformer_4layers": {
@@ -247,7 +262,7 @@
         "xgb_wins_of_8": 8,
         "p_sign": 0.0078125,
         "p_wilcoxon": 0.0078125,
-        "holm_alpha": 0.016666666666666666,
+        "holm_alpha": 0.0125,
         "significant_after_holm": true
       },
       "C2_dmodel_256": {
@@ -257,7 +272,7 @@
         "xgb_wins_of_8": 8,
         "p_sign": 0.0078125,
         "p_wilcoxon": 0.0078125,
-        "holm_alpha": 0.025,
+        "holm_alpha": 0.016666666666666666,
         "significant_after_holm": true
       },
       "C3_pure_cnn": {
@@ -267,13 +282,23 @@
         "xgb_wins_of_8": 8,
         "p_sign": 0.0078125,
         "p_wilcoxon": 0.0078125,
+        "holm_alpha": 0.025,
+        "significant_after_holm": true
+      },
+      "C4_pure_transformer": {
+        "dl_macro": 0.6215415839105844,
+        "xgb_macro": 0.7646477442708204,
+        "gap_pp": 14.310616036023593,
+        "xgb_wins_of_8": 8,
+        "p_sign": 0.0078125,
+        "p_wilcoxon": 0.0078125,
         "holm_alpha": 0.05,
         "significant_after_holm": true
       }
     },
     "model_level": {
-      "dl_configs_below_xgb_macro": 9,
-      "of": 9,
+      "dl_configs_below_xgb_macro": 10,
+      "of": 10,
       "note": "descriptive only \u2014 configs share one dataset, independence does not hold, no binomial p attached"
     }
   }

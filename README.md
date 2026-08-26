@@ -70,8 +70,6 @@ prioritise contracts for deeper analysis.
 
 All values are from a single read of the held-out test split (11,247 contracts) under the v2 protocol. Confidence intervals are stratified percentile bootstrap (B=1000). XGBoost beats the best deep configuration on 8/8 classes (sign test p=0.0078; with n=8 the smallest attainable two-sided p is 2/256=0.0078, so this is the floor, not a stronger claim).
 
-> **Ablation coverage.** 9 of 10 deep configurations completed: `C4_pure_transformer` did not finish within the GPU allocation for this run and are excluded rather than estimated. Under the v1 (leaking) protocol those ranked 4th and 10th of 10, so neither was the strongest deep configuration there; no claim is made about where they would land here.
-
 These numbers are generated from `results/` by `scripts/emit_cards_v2.py` and cross-checked against the paper by `scripts/check_numbers_v2.py`; they are not typed by hand.
 
 
