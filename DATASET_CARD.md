@@ -47,7 +47,7 @@ sha256 hashes are recorded in [`data/manifest_v2.json`](data/manifest_v2.json).
 | Item | Value |
 |---|---:|
 | Loaded rows (v1 train + v1 val) | 116,697 |
-| After dedup on metadata-stripped bytecode | 115,839 |
+| After dedup on stored instruction text | 115,839 |
 | After dedup on 67-d feature vector | 112,467 |
 | Train split | 89,973 |
 | Validation split | 11,247 |
@@ -61,7 +61,17 @@ exactly once per model.
 
 ## Labels
 
-The 39 Slither detector tags are mapped to eight SWC-aligned classes via
+A contract is positive for a class when the corpus records at least one
+Slither finding whose detector maps to it. The mapping is by detector name
+only, and the released derivative carries just the eight binary labels, so no
+severity or confidence filter is applied or recoverable: a positive means
+Slither emitted a finding, not that it is reachable or exploitable. The eight
+classes are the source corpus's own label set, only partly aligned with DASP
+(`locked-ether` is a Slither detector name, `double-spending` is not a DASP
+category, and DASP's denial-of-service, front-running and time-manipulation
+categories have no label here).
+
+The 39 Slither detector tags map to those eight classes via
 [`data/label_mappings.json`](data/label_mappings.json):
 
 - access-control

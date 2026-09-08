@@ -31,8 +31,9 @@ This also explains the historical inconsistency between the README
 different v1 runs under the broken protocol, and both are withdrawn rather
 than reconciled.
 
-The **v2 protocol** fixes both defects: deduplication on metadata-stripped
-runtime bytecode *and* on the 67-dimensional feature vector; a stratified
+The **v2 protocol** fixes both defects: deduplication on the stored instruction text *and* on the
+67-dimensional feature vector (only the second is load-bearing: see the
+paper, Sec. 3); a stratified
 80/10/10 train/val/test split (seed 376); hyperparameter tuning via 5-fold
 cross-validation inside train only; threshold selection on val; a single
 final report on test. The v2 rerun is **complete**: every metric below comes
@@ -205,7 +206,7 @@ The v2 pipeline is script-based and runs in phase order. See
 ```bash
 pip install -r requirements.txt
 
-# Phase 1 — data: dedup (metadata-stripped bytecode + 67-d feature vector),
+# Phase 1 — data: dedup (stored instruction text + 67-d feature vector),
 # stratified 80/10/10 split with seed 376, manifest with sha256 per split
 python scripts/build_data_v2.py
 

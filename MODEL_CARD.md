@@ -38,8 +38,9 @@ listed here or in the README, should be cited.
 
 ## Evaluation Protocol (v2)
 
-- Corpus: 112,467 contracts after dedup on metadata-stripped bytecode and
-  on the 67-d feature vector (see `data/README.md`).
+- Corpus: 112,467 contracts after dedup on the stored instruction text and
+  on the 67-d feature vector; only the second removes what the model can
+  memorise (see `data/README.md` and the paper, Sec. 3).
 - Split: stratified 80/10/10 train/val/test (89,973 / 11,247 / 11,247),
   seed 376.
 - Hyperparameter tuning: Optuna with **5-fold stratified CV inside train

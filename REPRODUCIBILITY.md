@@ -22,7 +22,7 @@ Phases, in order:
 
 | Phase | Script | What it does |
 |---|---|---|
-| 1 | `scripts/build_data_v2.py` | Dedup on metadata-stripped bytecode + 67-d feature vector; stratified 80/10/10 split; writes parquets + `data/manifest_v2.json` |
+| 1 | `scripts/build_data_v2.py` | Dedup on the stored instruction text + 67-d feature vector; stratified 80/10/10 split; writes parquets + `data/manifest_v2.json` |
 | 2 | `scripts/run_classical_v2.py` | Classical binary models under the honest protocol; per-model JSON + CSV + paired delta-F1 bootstrap |
 | 3 | `scripts/build_kernel_v2.py` + `scripts/dl_trainer_v2_source.py` | Assembles and runs the 10-config Conv-Transformer ablation on Kaggle GPU (train on train_v2, report on test_v2) |
 | 4 | `scripts/analyze_v2.py` | Paired statistics (exact p-values, Holm correction), per-label F1 heatmap |

@@ -43,14 +43,28 @@ one is worth on this corpus.
 
 \section{Dataset and Protocol}\label{sec:data-v2}
 
-\paragraph{Corpus.}
+\paragraph{Corpus and what a label means.}
 We build on the Slither-audited smart-contract corpus of
 Rossini~\cite{slitherAudited}, which pairs Etherscan-verified sources with
-their deployed EVM bytecode and per-detector Slither reports. The
-39~Slither detectors are mapped to the eight DASP-derived classes used
-throughout this paper by the mapping released with our code
-(\texttt{data/label\_mappings.json}); detectors outside those categories are
-dropped rather than silently folded into \emph{other}.
+their deployed EVM bytecode and per-detector Slither reports. A contract is
+positive for a class when the corpus records at least one Slither finding
+whose detector maps to that class; the mapping from the 39~detector names to
+the eight classes ships with our code
+(\texttt{data/label\_mappings.json}), and detectors mapped to
+\texttt{ignore} are dropped rather than silently folded into \emph{other}.
+
+The mapping is by detector name alone. The released derivative carries only
+the eight binary labels, so no severity or confidence filter is applied at
+this stage and none can be recovered from it downstream. A positive therefore
+means that Slither emitted a finding, not that the finding is reachable or
+exploitable, and every metric in this paper should be read as agreement with
+that emission. The eight classes are the corpus's own label set, only
+partly aligned with the DASP taxonomy: access-control, arithmetic,
+bad-randomness, reentrancy and unchecked-calls correspond to DASP categories,
+\emph{locked-ether} is a Slither detector name, \emph{double-spending} is not
+a DASP category, and DASP's denial-of-service, front-running and
+time-manipulation categories have no label here. We keep the corpus's names
+rather than renaming them to a taxonomy they do not match.
 
 \paragraph{Slither labels as the operational target.}
 Labels are produced by the Slither~\cite{slither} static analyser,
@@ -76,10 +90,18 @@ raw bytecode string — as is common, and as our own earlier pipeline did —
 therefore lets near-identical contracts survive into both sides of a split.
 Because our features are mnemonic-level counts, such contracts are
 \emph{bit-identical in feature space}, and a tree ensemble can memorise them.
-We remove duplicates twice: first on metadata-stripped runtime bytecode
-(\vDupsBc{} contracts), then on the \vNFeat-dimensional feature vector itself
-(\vDupsFeat{} contracts), leaving \vCorpus{} contracts with a positive rate
-of \vPosRate.
+We remove duplicates twice. The first pass drops \vDupsBc{} contracts whose
+stored instruction text is identical. Its implementation also attempts to cut
+a CBOR trailer, but the field it operates on holds the converter's mnemonic
+text rather than hexadecimal runtime bytecode
+(Sec.~\ref{sec:methods}), so that cut is inert: re-applying it to the
+released inputs leaves every sampled row unchanged. We therefore describe
+this pass as exact-duplicate removal on instruction text, not as
+metadata-aware normalisation. The second pass drops \vDupsFeat{} contracts
+sharing a \vNFeat-dimensional feature vector, leaving \vCorpus{} contracts at
+a positive rate of \vPosRate. The second pass is the one that bears the
+weight: it operates on exactly what the models see, and
+Sec.~\ref{sec:leak-v2} measures what its absence cost the earlier split.
 
 \subsection{What the earlier split actually leaked}\label{sec:leak-v2}
 
@@ -134,9 +156,10 @@ deep configurations, with a per-class sweep in each.
 
 \paragraph{Threats to validity.}
 The split and deduplication procedure is stated in full so a reader can bound the residual risk.
-\textbf{(a)~Duplicate removal:} performed twice, on metadata-stripped
-runtime bytecode and on the \vNFeat-dimensional feature vector, before the
-split; the no-overlap invariant is asserted at build time.
+\textbf{(a)~Duplicate removal:} performed twice before the split, on the
+stored instruction text and on the \vNFeat-dimensional feature vector; the
+no-overlap invariant is asserted at build time. Only the second pass is
+load-bearing, for the reason given in Sec.~\ref{sec:data-v2}.
 \textbf{(b)~Split methodology:} the stratified three-way split is
 randomised at the contract level (\texttt{seed}=\vSeed) and preserves the
 positive rate to three decimals in every fold.
@@ -148,9 +171,10 @@ removes exact twins, not this weaker correlation.
 performed. Feature-space deduplication catches template deployments that are
 \emph{identical} in the model's input, which is what
 Sec.~\ref{sec:leak-v2} shows was the dominant effect here, but a template
-family whose members differ in a handful of features survives it. This residue is smaller than the exact-twin effect we measured and removed, and we defer address-grouped re-splitting via
-the Etherscan proxy-detection API, together with a temporal train/test cut,
-to the extended version.
+family whose members differ in a handful of features survives it. Its size
+is not measured here. We defer address-grouped re-splitting via the
+Etherscan proxy-detection API, together with a temporal train/test cut, to
+the extended version.
 
 \begin{figure}[t]
 \centering
@@ -176,8 +200,8 @@ family that also exposes a different feature-importance measure
 
 \paragraph{Multi-label classification.}
 Three classical multi-label classifiers (LogReg, RandomForest, XGBoost)
-wrapped in \texttt{sklearn.MultiOutputClassifier} predict the eight
-SWC-derived classes (access-control, arithmetic, bad-randomness,
+wrapped in \texttt{sklearn.MultiOutputClassifier} predict the eight classes
+of Sec.~\ref{sec:data-v2} (access-control, arithmetic, bad-randomness,
 double-spending, locked-ether, other, reentrancy, unchecked-calls). Because
 the split and \texttt{tree\_method=hist} are both deterministic, repeated
 XGBoost seeds produce numerically identical predictions; seed variance is
@@ -319,13 +343,26 @@ disassembler initialisation dominate at small batches, while parallelism is
 trivial across cores and machines. The figure is an envelope, not a
 guaranteed throughput.
 
-\paragraph{Tier-1 operating envelope.}
-The point of a false-negative rate of \vBXGBFnr{} is what it implies for the
-funnel. Screening every deployment and forwarding the most suspicious
-${\sim}1\%$ to Slither ($\sim\!1$~s/contract) and the critical remainder to
-symbolic search (minutes/contract) reduces the deep-analysis workload by
-roughly two orders of magnitude, at the cost of the missed positives that
-\vBXGBFnr{} quantifies. 
+\paragraph{Tier-1 operating envelope on this corpus, and where it does not
+apply.}
+A false-negative rate of \vBXGBFnr{} is a property of the
+validation-selected threshold, and that threshold is permissive: at
+precision \vBXGBPrec{} and recall \vBXGBRec{} on a corpus that is \vPosRate{}
+positive, the filter forwards $\pi_{+}r/p \approx \vFlagRate$ of all
+contracts. The workload reduction is therefore about
+\vWorkloadRed$\times$, not two orders of magnitude, and on a corpus this
+positive no threshold can do much better: the ceiling in the previous
+paragraph is the same arithmetic seen from the other side. The two figures
+are one fact, and quoting a small forwarding budget together with
+\vBXGBFnr{} would state both halves of a contradiction.
+
+The regime in which a Tier-1 filter pays for itself is the one this corpus
+does not represent --- a deployment stream whose positive rate is far below
+\vPosRate, where a fixed forwarding budget buys a materially different
+recall. We have not measured such a stream, so we report the envelope as
+measured here and treat the funnel argument as conditional on a base rate we
+have not observed. What survives unconditionally is the per-contract cost
+below, which is a property of the pipeline rather than of the corpus. 
 
 \paragraph{Why not simply run Slither directly?}
 A natural question, with three answers that survive the correction to our
@@ -350,7 +387,7 @@ tool it feeds.
 \includegraphics[width=\textwidth]{perlabel_f1_heatmap_v2.pdf}
 \caption{Per-class $F_1$ on the held-out test split under the v2 protocol:
 classical multi-label baselines (left of the first rule) against the
-\vDlNConfigs{} Conv-Transformer configurations. Classes are ordered as in the SWC taxonomy;
+\vDlNConfigs{} Conv-Transformer configurations. Classes are ordered as in Sec.~\ref{sec:data-v2};
 \textit{double-spending} is the rarest class and the one on which every model
 degrades.}
 \label{fig:heatmap-v2}
@@ -369,7 +406,10 @@ the same training split, early-stopped on an internal carve-out of that
 split, and evaluated once on the same held-out test split as the classical
 models. The best configuration, \vDlBestName, reaches macro-$F_1 =$
 \vDlBest{} (worst \vDlWorst, mean \vDlMean), trailing XGBoost by
-\vDlGap~p.p. \vDlCaveat
+\vDlGap~p.p. Every one of these numbers is a result for the legacy token
+representation described in Sec.~\ref{sec:methods}, in which the comparator
+was fed the hexadecimal text of the bytecode rather than its decoded opcodes.
+\vDlCaveat
 
 \paragraph{Statistical framing.}
 Per-class comparison over eight classes is a coarse instrument: with $n=8$
@@ -415,10 +455,17 @@ The classical models train on a single CPU core in the times listed in
 Table~\ref{tab:binary-v2}; the binary XGBoost fit, including its Optuna
 search, takes \vBXGBTrain{}~s. The deep configurations train on a GPU; wall-clock training time survives for \vDlTimeN{} of the
 \vDlTimeOf{} configurations, ranging from \vDlTimeLo{} to \vDlTimeHi{}~s.
-The training time of the classical multi-label baseline was not recorded at
-all. We therefore state the compute comparison as an order of magnitude and
-decline to give a ratio: a mean over the \vDlTimeN{} runs that happen to
-carry a timestamp would read as a mean over all \vDlTimeOf. The earlier version reported exactly such a mean, and a $30\times$ ratio with it. What the surviving timings do establish is that the comparator is not losing for want of training: it loses in every configuration, under every loss function, at roughly an order of magnitude more compute.
+The training time of the classical multi-label baseline --- the model that
+actually wins the comparison --- was not recorded at all.
+
+Three gaps therefore separate these timings from a compute comparison: the
+classical side of the multi-label task is untimed, the classical figures that
+do exist come from the binary task, and CPU seconds and GPU seconds are not
+the same unit. We give the measurements and draw no ratio from them. The
+earlier version did draw one, a $30\times$ ratio from a mean over the runs
+that happened to carry a timestamp, read as a mean over all \vDlTimeOf. The
+surviving timings therefore neither compare compute budgets nor establish
+that any configuration was trained sufficiently.
 
 \paragraph{Interpretability.}
 Attributions come from a protocol-matched refit using the recorded XGBoost
@@ -449,55 +496,44 @@ leaning on.
 \section{End-to-End Re-Execution}\label{sec:rerun-v2}
 
 The numbers above come from a pipeline of numbered scripts whose fitted
-models and fit-time environment were not saved (Sec.~\ref{sec:binary-v2}).
-To close that gap from the other side, the author's original experiment
-notebook was restructured into a single document with two modes, a local
-teaching mode and a full mode, and the full mode was run to completion on a
-Kaggle \vRunGpu{} (kernel version \vRunVer). The executed notebook has
-\vRunCells{} cells; all \vRunCode{} code cells carry execution counts and
-none carries an error output. It is released in the archive with every
-artifact this section cites.
-
-\paragraph{Protocol.}
-The run trains \vRunStages{} model stages, seven classical and \vRunDl{}
-deep, on the released training split, ranks them on the validation split,
-freezes a final set of three before any test access, and then reads the test
-split once. The frozen set is fixed by the method rather than by the ranking:
-the multi-label logistic reference, the validation-selected deep
-configuration, and the binary logistic reference. A threshold-sensitivity
-diagnostic on the four loss variants runs after the freeze and outside
-selection. Quota-bounded sessions were resumed from identity-checked
-checkpoints, so the deep models retain their epoch counts (\vRunEpochsLo{}
-to \vRunEpochsHi) but only the last-trained stage retains a per-epoch curve.
-The training loop returns the last executed epoch's weights rather than
-restoring the best one.
+models and fit-time environment were not saved (Sec.~\ref{sec:binary-v2}). To
+close that gap from the other side, the author's original experiment notebook
+was run to completion on a Kaggle \vRunGpu: it trains \vRunStages{} model
+stages, seven classical and \vRunDl{} deep, ranks them on validation,
+freezes the multi-label logistic reference, the validation-selected deep
+configuration and the binary logistic reference before any test access, and
+then reads the test split once. The notebook, its artifacts and a script that
+recomputes every number below are released with this version, where the run's
+operational detail is documented.
 
 \begin{table}[t]
 \centering
 \caption{Reference pipeline against the end-to-end re-execution. The
-re-execution scored only its frozen final set on the test split; the lower
-block compares its validation scores, where every model was scored, with the
-reference test scores. Binary LogReg reproduces to three decimals;
-multi-label LogReg differs because the notebook standardises inputs for that
-reference and the script did not.}
+re-execution scored only its frozen final set on the test split, so the lower
+block compares its validation scores with the reference test scores and the
+two columns are not like for like. The strongest deep configuration is
+\vDlBestName{} in the reference and the re-execution selects the same one.
+Binary LogReg reproduces to three decimals; multi-label LogReg differs
+because the notebook standardises inputs for that reference and the script
+did not.}
 \label{tab:rerun-v2}
 \footnotesize
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}lcc@{}}
 \toprule
- & \textbf{Reference} & \textbf{Re-execution} \\
+ & \textbf{Reference} & \textbf{Re-exec.} \\
 \midrule
 \multicolumn{3}{@{}l}{\emph{Test split, both}} \\
 Binary LogReg $F_1$ & \vBLRFone & \vRunBLRFone \\
 Binary LogReg MCC & \vBLRMcc & \vRunBLRMcc \\
 Binary LogReg PR-AUC & \vBLRPrauc & \vRunBLRPrauc \\
 Multi-label LogReg macro-$F_1$ & \vMlLr & \vRunMlLr \\
-Best deep, macro-$F_1$ (\vRunDlBestName{} in both) & \vDlBest & \vRunDlBestTest \\
+Best deep config., macro-$F_1$ & \vDlBest & \vRunDlBestTest \\
 \midrule
-\multicolumn{3}{@{}l}{\emph{Reference test vs.\ re-execution validation}} \\
-Best deep, macro-$F_1$ & \vDlBest & \vRunDlBestVal \\
+\multicolumn{3}{@{}l}{\emph{Reference (test) vs.\ re-exec.\ (validation)}} \\
+Best deep config., macro-$F_1$ & \vDlBest & \vRunDlBestVal \\
 XGBoost macro-$F_1$ & \vMlXgb & \vRunMlXgbVal \\
-XGBoost minus best deep, p.p. & \vDlGap & \vRunGapVal \\
+XGBoost $-$ best deep (p.p.) & \vDlGap & \vRunGapVal \\
 Binary XGBoost PR-AUC & \vBXGBPrauc & \vRunBXGBPraucVal \\
 Binary XGBoost MCC & \vBXGBMcc & \vRunBXGBMccVal \\
 \bottomrule
@@ -507,66 +543,53 @@ Binary XGBoost MCC & \vBXGBMcc & \vRunBXGBMccVal \\
 \paragraph{What agrees.}
 The binary logistic reference reproduces to three decimals
 (Table~\ref{tab:rerun-v2}): the same standardised inputs, the same
-deterministic solver and the same released split give the same $F_1$, MCC
-and PR-AUC. The re-execution again selects \vRunDlBestName{} as the
-strongest deep configuration, now on validation (\vRunDlBestVal; worst
-\vRunDlWorstName{} at \vRunDlWorstVal, mean \vRunDlMeanVal), and XGBoost
-again beats every deep configuration, by \vRunGapVal~p.p.\ on validation
-against \vDlGap~p.p.\ on the reference test split. The ordering of
-Sec.~\ref{sec:ml-v2} is therefore not an artefact of the original scripts.
+deterministic solver and the same released split give the same $F_1$, MCC and
+PR-AUC. The re-execution independently selects \vRunDlBestName{} as the
+strongest deep configuration, now on validation (\vRunDlBestVal), and
+XGBoost again beats every deep configuration, by \vRunGapVal~p.p.\ on
+validation against \vDlGap~p.p.\ on the reference test split. Both pipelines
+consume the same legacy token representation
+(Sec.~\ref{sec:methods}), so this agreement establishes that the ordering is
+not an artefact of the original scripts. It is not independent evidence about
+deep learning on correctly decoded opcodes, and we do not read it as such.
 
 \paragraph{What differs, and why.}
-The multi-label logistic reference rises from \vMlLr{} to \vRunMlLr{}
-because the notebook standardises its inputs and the historical script did
-not; the difference measures standardisation, not reproduction. The selected
-deep configuration reaches \vRunDlBestTest{} on the test split against
-\vDlBest{} in the reference. Three protocol differences are candidates:
-last-epoch rather than best-epoch weights, a resumed training chain, and a
-single seed in both runs. We do not apportion the gap among them; we report
-it as the variation a reader should expect between two executions of this
-experiment. Only three models were scored on the test split, by design, so
-the per-class sweep of Sec.~\ref{sec:ml-v2} is not repeated there. Tuning
-the four loss-variant thresholds on validation moved their validation
-macro-$F_1$ by \vRunBFiveLo{} to \vRunBFiveHi; because those thresholds
-were assessed on the split that chose them, this is a sensitivity figure and
-no part of selection.
+The multi-label logistic reference rises from \vMlLr{} to \vRunMlLr{} because
+the notebook standardises its inputs and the historical script did not; that
+difference measures standardisation, not reproduction. The selected deep
+configuration reaches \vRunDlBestTest{} on the test split against \vDlBest{}
+in the reference, under last-epoch rather than best-epoch weights, a resumed
+training chain, and a single seed in both runs; we do not apportion the gap
+among the three. Separately, tuning the four loss-variant thresholds on the
+same validation split that selected them moves their macro-$F_1$ by
+\vRunBFiveLo{} to \vRunBFiveHi. That is a threshold-sensitivity
+diagnostic, computed after the freeze and outside model selection, on the
+split that chose the thresholds; it estimates nothing about generalisation.
 
 \paragraph{What the re-execution does not establish.}
-It reads the same test split that Sec.~\ref{sec:ml-v2} read. Two reads of
-one partition by two pipelines are still one partition, and any later change
+It reads the same test split that Sec.~\ref{sec:ml-v2} read. Two reads of one
+partition by two pipelines are still one partition, and any later change
 motivated by either result cannot be confirmed on it. The
-corrected-representation experiment that the caveat in
-Sec.~\ref{sec:methods} calls for is specified in the archive as a separate
-protocol, with a family-grouped re-split, a sealed confirmatory partition
-that excludes every contract of the present test split, and pre-registered
-decision rules; it has not been run.
+corrected-representation experiment that Sec.~\ref{sec:methods} calls for is
+specified in the archive and has not been run (Sec.~\ref{sec:disc}).
 
 \section{Discussion and Future Work}\label{sec:disc}
 
-\paragraph{Why deep learning did not help here, and what that does not show.}
+\paragraph{What the comparator's result does and does not show.}
 The \vNFeat{} engineered features --- opcode counts, control-flow
 statistics, gas aggregates, SWC-aligned risk scores --- form a
-mid-dimensional tabular representation, exactly the regime in which
-tree-based ensembles outperform deep networks~\cite{grinsztajn2022,
-shwartz2022}. The discriminative signal is statistical, and the
-Conv-Transformer must re-derive from its token sequences what XGBoost reads
-directly off a column. Our contribution is not the mechanism, which is
-known, but its demonstration on EVM bytecode features under a stated
-protocol. The practical reading is narrow and worth
-stating as such: do not reach for a Conv-Transformer on features like these
-unless you are also changing the representation to one that leaves the
-tabular regime --- a raw control-flow graph, or a cross-contract graph.
-
-The representation caveat of Sec.~\ref{sec:methods} weakens that
-attribution without reversing the measurement. The comparator saw a
-hexadecimal-character encoding of the bytecode: invertible, so no
+mid-dimensional tabular representation, the regime in which tree-based
+ensembles are reported to outperform deep networks~\cite{grinsztajn2022,
+shwartz2022}. That is one candidate explanation for the gap measured here,
+and it is not established. The comparator saw a hexadecimal-character
+encoding of the bytecode (Sec.~\ref{sec:methods}): invertible, so no
 information was destroyed, but with every instruction boundary and every
-\texttt{PUSH} operand displaced. A network that must first learn to pair
-hexadecimal digits into bytes is handicapped for a reason that has nothing
-to do with the tabular regime. The finding stands as measured --- on this
+\texttt{PUSH} operand displaced, and a network that must first learn to pair
+hexadecimal digits into bytes is handicapped for a reason unrelated to the
+tabular regime. This design cannot separate the two explanations, so the
+cause of the gap remains a hypothesis. What is measured is narrower: on this
 corpus, under this protocol, with this representation, gradient boosting on
-\vNFeat{} features wins every class --- but the explanation is now one of
-two candidates, and this design cannot separate them.
+\vNFeat{} features scores higher on every class.
 
 \paragraph{Future work.}
 The natural way out of the tabular regime is to carry structure end to end: a

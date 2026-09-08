@@ -75,11 +75,14 @@ score-level reproduction holds for only \vSensExactMatches{} models, we treat
 the small gap as environment-sensitive rather than statistically resolved. On
 multi-label classification, classical XGBoost
 (\vMlXgb) outperforms all \vDlNConfigs{} configurations of a
-Conv-Transformer ablation (best \vDlBest) at roughly an order of magnitude
-less training compute. A complete end-to-end re-execution of the authorial notebook on a Kaggle
+Conv-Transformer ablation (best \vDlBest). The classical winner's
+training time was never recorded, so we report the timings we have and draw
+no compute ratio from them. A complete end-to-end re-execution of the authorial notebook on a Kaggle
 \vRunGpu, released with this version, reproduces the binary logistic
-reference to three decimals and again selects the widest Conv-Transformer,
-\vRunDlBestName, on validation (test macro-$F_1$ \vRunDlBestTest). The same
+reference to three decimals and independently reselects the widest
+Conv-Transformer, \vRunDlBestName{} (test macro-$F_1$ \vRunDlBestTest); it
+consumed the same token representation, so it corroborates the ordering
+rather than the explanation. The same
 audit found that the comparator's token sequences were produced by
 disassembling hexadecimal text without decoding it to bytes, so the negative
 deep-learning result holds for that legacy representation and not for
@@ -101,9 +104,10 @@ confidence intervals, DeFi security
 
 Decentralised finance holds tens of billions of dollars in total value
 locked~\cite{defillama}, and public leaderboards record cumulative losses past USD~3~billion
-from smart-contract exploits since 2016~\cite{rekt}. Contracts holding these
-assets are immutable after deployment, which makes pre-deployment and
-pre-interaction screening the only lever available at scale.
+from smart-contract exploits since 2016~\cite{rekt}. Many of the contracts holding
+these assets are immutable after deployment, and while upgradeable proxy
+patterns and operational controls such as pausing and monitoring exist,
+pre-deployment and pre-interaction screening applies broadly and cheaply.
 
 Two distinct obstacles stand between a deployed contract and existing
 analysis, and conflating them overstates the case. Source-level static
@@ -127,12 +131,14 @@ precision/recall at a validation-selected threshold).
 \textbf{(ii)~A leakage-resistant evaluation protocol:} duplicates removed
 in feature space, a three-way split with a build-time no-overlap invariant,
 tuning confined to training folds, and a single read of the test split.
-\textbf{(iii)~A deep-learning comparator that loses:}
-\vDlNConfigs{} Conv-Transformer configurations, compared with paired tests whose resolution limits we state.
+\textbf{(iii)~A deep-learning comparator under the same protocol:}
+\vDlNConfigs{} Conv-Transformer configurations, none of which scores higher
+than gradient boosting on any class, on a token representation we later
+found to be defective (Sec.~\ref{sec:methods}).
 \textbf{(iv)~An executed end-to-end re-run and a representation audit:}
 the whole experiment as one checkpointed notebook, run to completion on a
-Kaggle GPU (Sec.~\ref{sec:rerun-v2}), together with the finding that bounds
-contribution~(iii).
+Kaggle GPU (Sec.~\ref{sec:rerun-v2}), together with a provenance audit showing the
+comparator consumed hexadecimal text rather than decoded opcodes.
 
 \paragraph{Relation to an earlier version of this work.}
 An earlier preprint reported comparable headline numbers under a protocol we
@@ -154,11 +160,13 @@ false-negative rate of \vBXGBFnr, under a protocol in which the test split
 is read once and duplicates are eliminated in the representation the model
 actually sees. On the eight-class task, classical gradient boosting
 (\vMlXgb) beats every one of \vDlNConfigs{} deep configurations (best
-\vDlBest), at roughly an order of magnitude less compute. A released
+\vDlBest). A released
 end-to-end re-execution reproduces that ordering on validation
 (\vRunMlXgbVal{} against \vRunDlBestVal) and the binary logistic reference
-exactly, while a provenance audit shows that the deep comparator consumed a
-hexadecimal-character encoding of the bytecode rather than decoded opcodes.
+to three decimals, while the selected deep configuration scores
+\vRunDlBestTest{} against \vDlBest{} under last-epoch weights. A provenance
+audit shows that the deep comparator consumed a hexadecimal-character
+encoding of the bytecode rather than decoded opcodes.
 The negative deep-learning result is therefore a result about that
 representation; whether canonical opcode sequences change it is the question
 the next iteration is designed to answer, under a protocol that treats the
@@ -175,9 +183,8 @@ level and publish the resulting overlap statistics, as we do here.
 Reference numbers are generated from released artifacts, not typed into the
 prose. The archive contains the corrected splits, a \vReproChecks-comparison
 audit notebook, the controlled-rerun score vectors with a score-level
-sensitivity gate, and, since this revision, the executed two-mode notebook
-(\vRunCells{} cells, run to completion on a Kaggle \vRunGpu) with the
-artifacts behind Sec.~\ref{sec:rerun-v2} The executed-run link below
+sensitivity gate, and, since this revision, the executed notebook of
+Sec.~\ref{sec:rerun-v2} with the artifacts behind its numbers. The executed-run link below
 carries that notebook with every output, its artifacts, and a verifier
 that recomputes each value in that section from them. Exact historical
 refitting is not claimed because fit-time

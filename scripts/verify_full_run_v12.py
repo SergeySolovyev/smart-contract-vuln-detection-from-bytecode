@@ -14,9 +14,9 @@ Three questions are answered, in order:
    is rehashed against the identities recorded when they were exported.
 2. Was the notebook actually executed to completion? Cell counts, execution
    counts and error outputs are read from the notebook itself.
-3. Does every number printed in Section 7 of the paper follow from those
-   artifacts? Each value is recomputed from the raw records and compared
-   with the string the paper prints.
+3. Do the run's reported values follow from those artifacts? Each one is
+   recomputed from the raw records and compared with its expected string.
+   The subset that Section 7 of the paper prints is checked the same way.
 
 Exit code 0 means all three hold. Exit code 1 lists what failed.
 """
@@ -32,10 +32,12 @@ ROOT = Path(__file__).resolve().parent.parent
 RUN = ROOT / "results" / "full_run_v12"
 NOTEBOOK = ROOT / "notebooks" / "ML_Experiments_v2_full_run.ipynb"
 
-# The values as they are printed in the paper. The point of this script is
-# that nothing here is transcribed from a run log: each one is recomputed
-# below from the released records and compared against these strings.
-PAPER = {
+# What the released run must reproduce. Most of these values appear in the
+# paper; the notebook and kernel identifiers are properties of the run itself
+# and are documented here rather than in the text. The point of the script is
+# that nothing below is transcribed from a run log: each value is recomputed
+# from the released records and compared against these strings.
+EXPECTED = {
     "binary LogReg, test F1": "0.890",
     "binary LogReg, test MCC": "0.610",
     "binary LogReg, test PR-AUC": "0.953",
@@ -239,13 +241,13 @@ print(f"Verifying the released version-12 run against the paper.\n"
       f"  artifacts: {RUN.relative_to(ROOT).as_posix()}\n"
       f"  notebook : {NOTEBOOK.relative_to(ROOT).as_posix()}\n")
 
-width = max(len(k) for k in PAPER)
-print(f"  {'quantity'.ljust(width)}   {'paper':>10}   {'recomputed':>10}")
+width = max(len(k) for k in EXPECTED)
+print(f"  {'quantity'.ljust(width)}   {'expected':>10}   {'recomputed':>10}")
 print(f"  {'-' * width}   {'-' * 10}   {'-' * 10}")
-for key, printed in PAPER.items():
+for key, printed in EXPECTED.items():
     got = recomputed[key]
     ok = got == printed
-    check(ok, f"paper value: {key}", f"paper {printed}, artifacts {got}")
+    check(ok, f"expected value: {key}", f"expected {printed}, artifacts {got}")
     mark = " " if ok else " <- MISMATCH"
     print(f"  {key.ljust(width)}   {printed:>10}   {got:>10}{mark}")
 
@@ -256,5 +258,5 @@ if failed:
     for name, detail in failed:
         print(f"  {name}" + (f"  [{detail}]" if detail else ""))
     sys.exit(1)
-print("Every number Section 7 prints follows from the released artifacts,")
-print("and the notebook that produced them ran to completion without errors.")
+print("Every reported value follows from the released artifacts, and the")
+print("notebook that produced them ran to completion without errors.")

@@ -64,10 +64,21 @@ step("loaded (v1 train + v1 val)", len(df))
 df = df[df["bytecode"].str.len() >= 4]
 step("after dropping empty/degenerate bytecode", len(df))
 
-# ── dedup 1: metadata-stripped runtime bytecode ─────────────────────────────
-# Solidity appends a CBOR-encoded metadata blob whose length is stored in the
-# final 2 bytes (big-endian, in bytes). Two builds of identical code differ
-# only there. Strip it when the declared length is plausible, else keep as-is.
+# ── dedup 1: exact duplicates of the stored instruction text ────────────────
+# Intent, as originally written: Solidity appends a CBOR-encoded metadata blob
+# whose length is stored in the final 2 bytes (big-endian, in bytes); two
+# builds of identical code differ only there, so strip it when the declared
+# length is plausible and keep the string otherwise.
+#
+# MEASURED, 2026-09-08: that strip never fires on this input. The `bytecode`
+# column of the upstream feature files holds space-separated opcode mnemonics
+# produced by the legacy converter, not hexadecimal runtime bytecode, so
+# re-applying strip_cbor to the released inputs altered no row in 31,670
+# sampled contracts. This pass is therefore exact-duplicate removal on
+# instruction text. The step label below is left unchanged so a rerun still
+# reproduces the recorded manifest; the paper (Sec. 3) and data/README.md
+# carry the correction. Dedup 2, on the feature vector, is the load-bearing
+# one and is unaffected.
 def strip_cbor(bc: str) -> str:
     if len(bc) < 8:
         return bc
