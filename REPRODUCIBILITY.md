@@ -53,6 +53,33 @@ Notes:
   trains exactly those two on CPU against the same splits, and the
   emit scripts pick them up automatically once present.
 
+## The Executed Run (version 12)
+
+The phases above are the authoritative pipeline, and their fitted models were
+not retained. One complete execution of the author's two-mode notebook was
+run on a Kaggle Tesla T4 and is released here in full:
+
+| | |
+|---|---|
+| Notebook | [`notebooks/ML_Experiments_v2_full_run.ipynb`](notebooks/ML_Experiments_v2_full_run.ipynb) and an [HTML copy](notebooks/ML_Experiments_v2_full_run.html) |
+| Artifacts | [`results/full_run_v12/`](results/full_run_v12/README.md) |
+| Verifier | `python scripts/verify_full_run_v12.py` |
+| Kernel | `sergeisolovyev/smart-contract-two-mode-full-run`, id 133095850, version 12 |
+| Evidence of completion | 105 cells, 54 code cells, execution counts 1 to 54, zero error outputs |
+| Protocol | 16 stages trained, selection frozen before any test access, test read once |
+
+The verifier is the entry point: it rehashes every artifact, reads the
+notebook's execution counts and recomputes each number the paper's Section 7
+prints, exiting non-zero on any disagreement. It needs only the standard
+library, and it trains nothing, loads no model and reads no dataset row.
+
+Two limits are worth stating before anyone reuses this run. It reads the same
+test split the rest of the paper reads, so it is a second execution of one
+protocol rather than an independent confirmation. And the sequence models
+consumed a hexadecimal-character encoding of the bytecode rather than decoded
+opcodes; `results/full_run_v12/README.md` documents that finding and what it
+does and does not affect.
+
 ## v1 Notebook (provenance only — numbers retracted)
 
 The v1 end-to-end run lives in the Kaggle notebook and its attached public

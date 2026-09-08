@@ -1,0 +1,132 @@
+{
+  "schema_version": "full_run_v12_reference_v1",
+  "what": "Small reference artifacts of the complete end-to-end re-execution of the two-mode authorial notebook (ML_Experiments, RUN_MODE=FULL_KAGGLE_GPU) on Kaggle, kernel sergeisolovyev/smart-contract-two-mode-full-run, kernel id 133095850, version 12, provider status COMPLETE first observed 2026-09-06 22:25:51.977 MSK.",
+  "executed_notebook": {
+    "path_in_workdir": "WORKDIR/sdd/2026-09-05-current-run-paper-draft/evidence/snapshots/2026-09-06T222551MSK-terminal/executed.ipynb",
+    "archive_copy": "05_notebooks/ML_Experiments_v2_full_run.ipynb (reader copy with four marked guide cells and embedded figures; code and outputs unchanged)",
+    "bytes": 392227,
+    "sha256": "561275b2556cccadfe2705e52c77d87cc4f315afb3c63bde1b216c82833ae39d",
+    "cells": 105,
+    "code_cells": 54,
+    "execution_counts": "1-54",
+    "error_outputs": 0
+  },
+  "reference_notebook_sha256": "1b5ae51349926b9757941d7415558909fb309e4cab81a9fb7e670024dbb60595",
+  "full_snapshot": {
+    "path": "WORKDIR/sdd/2026-09-05-current-run-paper-draft/evidence/snapshots/2026-09-06T222551MSK-terminal/",
+    "files": 85,
+    "bytes": 1739569374,
+    "note": "1.7 GB including all 16 fitted models; kept outside MANIFEST.sha256.json under WORKDIR/sdd, which is audit evidence and must not be deleted"
+  },
+  "float_encoding": "Every *_f64_hex field is a little-endian IEEE-754 double; decode with struct.unpack('<d', bytes.fromhex(x)).",
+  "files": [
+    {
+      "file": "full-ranking.json",
+      "bytes": 1914,
+      "sha256": "4d369c11af4fbdc9192d1fe53a24e9d9d5ce03b06908897ab60fdc6401637a00",
+      "source": "evidence/snapshots/2026-09-06T222551MSK-terminal/run/artifacts/full-ranking.json"
+    },
+    {
+      "file": "final-metrics.json",
+      "bytes": 872,
+      "sha256": "1d751b68ebb1634de7664c2207aec81e0b873f1b7289be0c114a992ada74e214",
+      "source": "evidence/snapshots/2026-09-06T222551MSK-terminal/run/artifacts/final-metrics.json"
+    },
+    {
+      "file": "final/C2.json",
+      "bytes": 5141,
+      "sha256": "cf3473fdc4b5586254abc2fc8479e41b8d0358cbcaf562d0a79e178e6cd54f1a",
+      "source": "evidence/snapshots/2026-09-06T222551MSK-terminal/run/artifacts/final/C2.json"
+    },
+    {
+      "file": "final/G3_LogReg.json",
+      "bytes": 3272,
+      "sha256": "d5271c6ad5df8455040abe21539f2e11a53e0d0863f24e345186b3606b47ad18",
+      "source": "evidence/snapshots/2026-09-06T222551MSK-terminal/run/artifacts/final/G3_LogReg.json"
+    },
+    {
+      "file": "final/ML0_LogReg.json",
+      "bytes": 5154,
+      "sha256": "e37ff60fa1b362163b80f3a8f181343f3afcd6be3f6c9d6c2bcc0fcc39896259",
+      "source": "evidence/snapshots/2026-09-06T222551MSK-terminal/run/artifacts/final/ML0_LogReg.json"
+    },
+    {
+      "file": "b5-threshold-sensitivity.json",
+      "bytes": 3924,
+      "sha256": "1234d72512479be68d355ac9350e810746af36616ce5abde0e303b544a8d09f6",
+      "source": "evidence/snapshots/2026-09-06T222551MSK-terminal/run/artifacts/b5-threshold-sensitivity.json"
+    },
+    {
+      "file": "validation-metrics.json",
+      "bytes": 1940,
+      "sha256": "fab4931dd6ba276053dbc182bc405f62120638bc6fe1329863829a202aba0527",
+      "source": "evidence/snapshots/2026-09-06T222551MSK-terminal/run/artifacts/validation-metrics.json"
+    },
+    {
+      "file": "thresholds.json",
+      "bytes": 3074,
+      "sha256": "7b2838128cdf29037c684e628147366360a3765ee1d91e8f3decfc2b136ba6d4",
+      "source": "evidence/snapshots/2026-09-06T222551MSK-terminal/run/artifacts/thresholds.json"
+    },
+    {
+      "file": "run-state.json",
+      "bytes": 599,
+      "sha256": "aea1d5021a1d73da395448440158856edab7adab3520a6910a363cecc8d32821",
+      "source": "evidence/snapshots/2026-09-06T222551MSK-terminal/run/artifacts/state/run-state.json"
+    },
+    {
+      "file": "selection-frozen.json",
+      "bytes": 3069,
+      "sha256": "d2277233e6d504f5ad3e2e1f3003e042dd333d624e78b5b8d1cf77890cccbcc7",
+      "source": "evidence/snapshots/2026-09-06T222551MSK-terminal/run/artifacts/state/selection-frozen.json"
+    },
+    {
+      "file": "heldout-access.json",
+      "bytes": 352,
+      "sha256": "e7505a9080ba793883e824932515d97763eff5586d1f1a2cbd80c64f60e18a6a",
+      "source": "evidence/snapshots/2026-09-06T222551MSK-terminal/run/artifacts/state/heldout-access.json"
+    },
+    {
+      "file": "authority-contract.json",
+      "bytes": 979,
+      "sha256": "215b51734454785bed1787daccbe47503d9f833898281ee2361a80e080d89e01",
+      "source": "evidence/snapshots/2026-09-06T222551MSK-terminal/run/artifacts/state/authority-contract.json"
+    },
+    {
+      "file": "artifact-manifest.json",
+      "bytes": 7915,
+      "sha256": "f939a2c4c6d11c1173672febae8923f4b77803da5e676d81e52c346d2d21eec0",
+      "source": "evidence/snapshots/2026-09-06T222551MSK-terminal/run/artifacts/manifest.json"
+    },
+    {
+      "file": "receipt.json",
+      "bytes": 599,
+      "sha256": "db96ea88252c5839dd4fa0a94fcdff677acca60b2624c376a3436e4e572872e8",
+      "source": "evidence/snapshots/2026-09-06T222551MSK-terminal/run/artifacts/receipt.json"
+    },
+    {
+      "file": "resource-preflight.json",
+      "bytes": 3262,
+      "sha256": "c413588d5f3728b5427548d800e58f22d2f8cdb94ef4a1c2f76a8c3e97041ae7",
+      "source": "evidence/snapshots/2026-09-06T222551MSK-terminal/run/artifacts/resource-preflight.json"
+    },
+    {
+      "file": "checkpoint.json",
+      "bytes": 4623,
+      "sha256": "6f1d103dd29fbd039e05b43732834b48a87ecabea263faa82b1d70ec03e0052e",
+      "source": "evidence/snapshots/2026-09-06T222551MSK-terminal/full-cache/77944b93838d9200c821ebb85d11b453/checkpoint.json"
+    },
+    {
+      "file": "controller-attempt-ledger.json",
+      "bytes": 880,
+      "sha256": "dfe88b286846202209873ccc4f0225b70b72ce758088607a9cd68a3272c2aafa",
+      "source": "evidence/snapshots/2026-09-06T222551MSK-terminal/controller-attempt-ledger.json"
+    },
+    {
+      "file": "input-representation-probe.json",
+      "bytes": 7285,
+      "sha256": "715a57b1914859973e1bb92e32bb7e939781b5fb63bc02d3edf40f6ca43ad601",
+      "source": "evidence/INPUT_REPRESENTATION_PROBE.json"
+    }
+  ]
+}

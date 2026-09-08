@@ -95,6 +95,43 @@ of verification. Tolerances are calibrated against measured cross-version
 noise (F1 reproduces to ~1e-5; threshold-sensitive components to <2e-3, while
 a wrong model specification moves them by >3e-3 and is caught).
 
+## The executed run, end to end
+
+The pipeline above produced the results in `results/`, but its fitted models
+and fit-time environment were not saved. To close that gap from the other
+side, the author's original experiment notebook was restructured into a
+single document with two modes and run to completion on a Kaggle Tesla T4.
+
+- Notebook, with every output as it was produced:
+  [`notebooks/ML_Experiments_v2_full_run.ipynb`](notebooks/ML_Experiments_v2_full_run.ipynb)
+  (105 cells, 54 code cells, execution counts exactly 1 to 54, no errors).
+  GitHub may decline to render a notebook that size; it always opens at
+  [nbviewer](https://nbviewer.org/github/SergeySolovyev/smart-contract-vuln-detection-from-bytecode/blob/main/notebooks/ML_Experiments_v2_full_run.ipynb). A standalone HTML copy is at
+  [`notebooks/ML_Experiments_v2_full_run.html`](notebooks/ML_Experiments_v2_full_run.html)
+  for reading offline.
+- Artifacts and their provenance:
+  [`results/full_run_v12/`](results/full_run_v12/README.md)
+- Check it rather than trust it:
+
+```bash
+python scripts/verify_full_run_v12.py
+```
+
+The verifier rehashes every artifact, reads the notebook's execution counts,
+and recomputes each number the paper's Section 7 prints, printing the
+paper's value beside the recomputed one. It uses only the standard library
+and trains nothing.
+
+That run also produced the finding that bounds the deep-learning result. The
+historical sequence converter passed the hexadecimal *string* to the
+disassembler without decoding it to bytes, so each hexadecimal character was
+read as an opcode: the fitted vocabulary of 1,405 tokens contains exactly 16
+named mnemonics, and they are the opcodes whose values equal the ASCII codes
+of the sixteen hexadecimal digits. The 67 numeric features are unaffected,
+because their extractor decodes first. Every deep-learning number here is
+therefore a result for that legacy representation, not for canonical EVM
+opcode sequences.
+
 ## Repository Structure
 
 ```text
@@ -123,10 +160,13 @@ a wrong model specification moves them by >3e-3 and is caught).
 │   └── figures/
 │       └── perlabel_f1_heatmap_v2.pdf
 ├── notebooks/
+│   ├── ML_Experiments_v2_full_run.ipynb  # the executed run, all outputs kept
+│   ├── ML_Experiments_v2_full_run.html   # same run, opens in a browser
 │   ├── repro_v2.ipynb           # 114 checks; re-derives every published number
 │   └── colab_c3c4_finisher.ipynb  # GPU finisher, notebook form
 ├── results/
 │   ├── README.md
+│   ├── full_run_v12/            # artifacts of the executed run + provenance
 │   ├── dl_runs_v2/              # all 10 deep configurations, one JSON each
 │   ├── results_classical/       # binary results, thresholds, paired delta
 │   ├── stats_v2.json            # paired statistics behind the comparison
@@ -145,6 +185,7 @@ a wrong model specification moves them by >3e-3 and is caught).
 │   ├── emit_macros_v2.py        # Phase 5: artifacts -> LaTeX macros
 │   ├── emit_cards_v2.py         # Phase 5b: README/MODEL_CARD from artifacts
 │   ├── check_numbers_v2.py      # Phase 5 gate: built PDF vs artifacts
+│   ├── verify_full_run_v12.py   # recomputes Sec. 7 from the released run
 │   ├── build_repro_notebook.py  # generates the reproduction notebook
 │   ├── full_ablation_analysis.py  # v1 ablation analysis (provenance)
 │   └── paired_class_test.py       # v1 significance tests (provenance)
@@ -196,6 +237,7 @@ pytest
 |---|---|
 | Raw dataset | https://huggingface.co/datasets/mwritescode/slither-audited-smart-contracts |
 | End-to-end Kaggle notebook (v1) | https://www.kaggle.com/code/sergeisolovyev/smart-contract-vuln-detection-from-bytecode |
+| Executed v2 run (notebook + artifacts) | [`notebooks/ML_Experiments_v2_full_run.ipynb`](notebooks/ML_Experiments_v2_full_run.ipynb), [`results/full_run_v12/`](results/full_run_v12/README.md) |
 | W&B ablation project | https://wandb.ai/sesesolovev-hse-university/defi-binary-vuln |
 | GitHub repository | https://github.com/SergeySolovyev/smart-contract-vuln-detection-from-bytecode |
 

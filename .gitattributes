@@ -1,0 +1,5 @@
+# The released run is verified by SHA-256; end-of-line conversion
+# would change those bytes on a Windows checkout and break the check.
+results/full_run_v12/** -text
+notebooks/ML_Experiments_v2_full_run.ipynb -text
+notebooks/ML_Experiments_v2_full_run.html -text

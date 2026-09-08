@@ -1,0 +1,156 @@
+{
+  "schema_version": "input_representation_probe_v1",
+  "observed_at": "2026-09-06T00:23:04.855906+03:00",
+  "scope": "Five historical TRAIN rows; three released TRAIN rows; all saved fit-vocabulary entries; inspected source; synthetic disassembler test. No VAL/TEST rows read, no training or model execution, no files written by this script.",
+  "versions": {
+    "pyevmasm": "0.2.3",
+    "pyarrow": "21.0.0"
+  },
+  "identities": [
+    {
+      "path": "D:\\DeFi\\DeFi_AI_dl_study\\ml_method.ipynb",
+      "bytes": 2747827,
+      "sha256": "f0e8911cf6cfe50b8b491e08dc8f0646bb57d5539c43d1441f07b78d3d33ec56"
+    },
+    {
+      "path": "D:\\DeFi\\DeFi_AI_dl_study\\prepare_dl_datasets.ipynb",
+      "bytes": 63973,
+      "sha256": "60908d6f2d52ec0ed90c0bf5117a1379504d7b361af76dd4688975ddea56e584"
+    },
+    {
+      "path": "D:\\DeFi\\Научный_телеграф\\PAPER_V2_ARCHIVE\\WORKDIR\\sdd\\2026-09-05-current-run-paper-draft\\evidence\\snapshots\\2026-09-05T233738MSK\\sessions\\session-01\\output\\run\\artifacts\\preprocessing\\tokenizer_whitespace_frequency_v1.json",
+      "bytes": 25525,
+      "sha256": "874ac4243667387c1ff9a45f042abdf61dd56e6606d248214d736d9384a64e82"
+    },
+    {
+      "path": "D:\\DeFi\\Научный_телеграф\\PAPER_V2_ARCHIVE\\02_code\\01_build_data_v2.py",
+      "bytes": 7426,
+      "sha256": "639749da39019e21eb4e26c6c22aeeedc9b5cb5fbe02fff535fa84037248ec55"
+    },
+    {
+      "path": "D:\\DeFi\\Научный_телеграф\\PAPER_V2_ARCHIVE\\01_data_v2\\manifest_v2.json",
+      "bytes": 1690,
+      "sha256": "2fa1c880ade4037535d29cdbc2737336de34f0220ee2538c8ce1d7bab6007d63"
+    },
+    {
+      "path": "D:\\DeFi\\Научный_телеграф\\PAPER_V2_ARCHIVE\\01_data_v2\\label_mappings.json",
+      "bytes": 1261,
+      "sha256": "4d8dec3f8cfd0b573309248d4899be0ed651ff9648ee77e8b0a90a429b6d8e39"
+    },
+    {
+      "path": "D:\\DeFi\\Научный_телеграф\\PAPER_V2_ARCHIVE\\01_data_v2\\feature_columns.json",
+      "bytes": 1698,
+      "sha256": "be90ca9a41696cb0cce2c9a6c35b4bb3f7ea71a3e159a0f6b8c4de39587fe820"
+    }
+  ],
+  "parquet_rows_from_metadata": {
+    "historical_train": 105027,
+    "released_train": 89973
+  },
+  "released_train_sample": [
+    {
+      "released_train_row_offset": 0,
+      "matching_source_train_offsets_within_first_five": [
+        1
+      ],
+      "text_sha256": "0fba77cb2f42a9b5afd3bf675c8e8bb704db9bae64da5f059dddb62cc7370c1c",
+      "text_prefix": "CALLDATASIZE ADDRESS CODESIZE ADDRESS CALLDATASIZE ADDRESS CALLVALUE ADDRESS CALLDATALOAD ORIGIN CALLDATASIZE ADDRESS ADDRESS CALLVALUE CALL",
+      "character_count": 27263,
+      "whitespace_token_count": 3013,
+      "looks_like_raw_hex": false,
+      "stored_total_instructions": -0.9752659321834325,
+      "stored_unique_instructions": -1.3786382300321296
+    },
+    {
+      "released_train_row_offset": 1,
+      "matching_source_train_offsets_within_first_five": [
+        2
+      ],
+      "text_sha256": "0a11c9742f07bad43126184342ccf1ea7590b939630bf205dbc00418d87c3465",
+      "text_prefix": "CALLDATASIZE ADDRESS CODESIZE ADDRESS CALLDATASIZE ADDRESS CALLVALUE ADDRESS CALLDATALOAD ORIGIN CALLER CALLVALUE CODESIZE ADDRESS BALANCE C",
+      "character_count": 59713,
+      "whitespace_token_count": 6570,
+      "looks_like_raw_hex": false,
+      "stored_total_instructions": -0.489376395216648,
+      "stored_unique_instructions": 0.4048782589730897
+    },
+    {
+      "released_train_row_offset": 2,
+      "matching_source_train_offsets_within_first_five": [
+        3
+      ],
+      "text_sha256": "c71ba960714098a3330956457acf89ee58514b74b0cf5f87760423281204ca48",
+      "text_prefix": "CALLDATASIZE ADDRESS CODESIZE ADDRESS CALLDATASIZE ADDRESS CALLVALUE ADDRESS CALLDATALOAD ORIGIN CALLER CALLVALUE CODESIZE ADDRESS BALANCE C",
+      "character_count": 166913,
+      "whitespace_token_count": 18602,
+      "looks_like_raw_hex": false,
+      "stored_total_instructions": 0.8134653453475461,
+      "stored_unique_instructions": -0.3496864094521953
+    }
+  ],
+  "saved_tokenizer": {
+    "fit_role": "official_train_dl_fit",
+    "vocabulary_entries": 1405,
+    "named_tokens": [
+      "ADDRESS",
+      "BALANCE",
+      "CALLDATASIZE",
+      "CALLDATALOAD",
+      "ORIGIN",
+      "CODESIZE",
+      "CODECOPY",
+      "PUSH7",
+      "CALLER",
+      "CALLVALUE",
+      "PUSH3",
+      "CALLDATACOPY",
+      "PUSH2",
+      "PUSH6",
+      "PUSH4",
+      "PUSH5"
+    ],
+    "named_token_count": 16,
+    "hex_prefixed_token_count": 1389,
+    "named_tokens_equal_ascii_hex_opcode_names": true,
+    "top16_frequencies": [
+      203150682,
+      93967100,
+      83106986,
+      66988241,
+      46187778,
+      43889405,
+      32397768,
+      29217528,
+      28650116,
+      27211124,
+      18891278,
+      17644894,
+      9134819,
+      6718321,
+      5400568,
+      5340366
+    ]
+  },
+  "historical_converter": {
+    "cell_index_zero_based": 13,
+    "source": "def extract_raw_opcodes(bytecode):\n    \"\"\"\n    Достает текстовую последовательность опкодов в сыром виде через \\n, если ошибка - вернут None\n    \"\"\"\n    try:\n        opcodes = disassemble(bytecode)\n        return opcodes\n\n    except Exception as e:\n        print(e)\n        return None",
+    "source_sha256": "44ac20246ee478a517969620ef3dfd953bfb06f3c9af7dbd69898640f0acf1c3",
+    "caller_cell_index_zero_based": 29,
+    "caller_source": "y_train = train_df['is_vulnerable']\ny_val = val_df['is_vulnerable']\n\nX_train_o = train_df['bytecode'].parallel_apply(extract_raw_opcodes).str.replace(r'[ ].*\\n|\\n', ' ', regex=True)\nX_val_o = val_df['bytecode'].parallel_apply(extract_raw_opcodes).str.replace(r'[ ].*\\n|\\n', ' ', regex=True)\n\nX_train_o = pd.DataFrame(X_train_o)\nX_val_o = pd.DataFrame(X_val_o)\n\nX_train_o['is_vulnerable'] = y_train\nX_val_o['is_vulnerable'] = y_val\n\nX_train_o.to_parquet('datasets/train_o_features.parquet', engine='pyarrow')\nX_val_o.to_parquet('datasets/val_o_features.parquet', engine='pyarrow')\n\nX_train_o = X_train_o['bytecode']\nX_val_o = X_val_o['bytecode']"
+  },
+  "historical_numeric_preparation": {
+    "cell_index_zero_based": 1,
+    "source": "train_n = pd.read_parquet('datasets/train_n_features.parquet')\nval_n = pd.read_parquet('datasets/val_n_features.parquet')\n\ndisplay(train_n.describe())\ndisplay(val_n.describe())\n\nfor col in train_n.columns:\n    scaler = StandardScaler()\n    train_n[col] = scaler.fit_transform(train_n[col].values.reshape(-1, 1))\n    val_n[col] = scaler.transform(val_n[col].values.reshape(-1, 1))"
+  },
+  "synthetic_comparison": {
+    "hex_text": "60016000",
+    "legacy_disassemble_string": "CALLDATASIZE\nADDRESS\nADDRESS\nBALANCE\nCALLDATASIZE\nADDRESS\nADDRESS\nADDRESS",
+    "disassemble_decoded_bytes": "PUSH1 0x1\nPUSH1 0x0",
+    "explicit_expectations_pass": true
+  },
+  "unverified": [
+    "The original raw train.parquet and train_o_features.parquet are absent from the historical datasets directory; no per-row raw-hex-to-released-text reconstruction was possible in this probe.",
+    "The full original dataset build and all-row semantic correctness were not replayed.",
+    "This probe does not measure predictive impact or prescribe a change to the active experiment."
+  ]
+}
