@@ -3,9 +3,9 @@
 % numbers_v2.tex, which is regenerated from the run artifacts by
 % scripts/emit_macros_v2.py. Nothing numeric is typed by hand anywhere.
 %
-% Build:  pdflatex main_v2  (twice, for references)
-% Verify: python scripts/check_numbers_v2.py   (fails if prose and artifacts
-%                                               ever disagree)
+% Build: pdflatex main_v2 (twice, for references)
+% Verify: python scripts/check_numbers_v2.py (fails if prose and artifacts
+% ever disagree)
 % =============================================================================
 \documentclass[twocolumn, 10pt]{article}
 
@@ -17,9 +17,9 @@
 
 \usepackage{icicpe}
 \renewenvironment{keyword}{%
-  \list{}{\setlength{\leftmargin}{0.8cm}}%
-  \small\item\relax\textbf{Keywords: }}%
-  {\vspace{0.7cm}}
+ \list{}{\setlength{\leftmargin}{0.8cm}}%
+ \small\item\relax\textbf{Keywords: }}%
+ {\vspace{0.7cm}}
 \usepackage[utf8]{inputenc}
 \usepackage[pdfencoding=auto]{hyperref}
 \usepackage{url}
@@ -29,6 +29,7 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage[symbol]{footmisc}
+\usepackage{balance}
 
 \graphicspath{{figures/}}
 
@@ -41,8 +42,7 @@ Classification with a Deep-Learning Comparator}
 
 \author[english]{
 Sergei Solovev\\
-HSE University\\
-\texttt{sesesolovev@edu.hse.ru}
+\texttt{sssolovjov@gmail.com}
 }
 
 \finalcopy
@@ -66,16 +66,27 @@ rather than the raw bytecode string, which we show is the difference between
 a leaking and a clean split; hyperparameters and thresholds are selected on a
 validation split and the test split is read exactly once. On binary
 detection, gradient boosting reaches $F_1 =$ \vBXGBFone{}
-{[}\vBXGBLo, \vBXGBHi{]} at a false-negative rate of \vBXGBFnr, and a paired
-bootstrap---rather than the overlap of marginal intervals---resolves its
-advantage over RandomForest ($\Delta F_1 = \vDeltaFone$, 95\% CI
-{[}\vDeltaLo, \vDeltaHi{]}). On multi-label classification, classical XGBoost
+{[}\vBXGBLo, \vBXGBHi{]} at a false-negative rate of \vBXGBFnr. The reference
+artifacts give a paired XGBoost--RandomForest difference of
+$\Delta F_1 = \vDeltaFone$ (95\% CI {[}\vDeltaLo, \vDeltaHi{]}), whereas a
+controlled rerun gives \vSensDeltaFone{} ({[}\vSensDeltaLo,
+\vSensDeltaHi{]}). Because the latter interval crosses zero and exact
+score-level reproduction holds for only \vSensExactMatches{} models, we treat
+the small gap as environment-sensitive rather than statistically resolved. On
+multi-label classification, classical XGBoost
 (\vMlXgb) outperforms all \vDlNConfigs{} configurations of a
 Conv-Transformer ablation (best \vDlBest) at roughly an order of magnitude
-less training compute. We attribute the negative deep-learning result to the
-tabular-feature regime, where tree ensembles remain
-dominant~\cite{grinsztajn2022,shwartz2022}, and we report the statistical
-evidence for it with the limits that eight paired observations actually
+less training compute. A complete end-to-end re-execution of the authorial notebook on a Kaggle
+\vRunGpu, released with this version, reproduces the binary logistic
+reference to three decimals and again selects the widest Conv-Transformer,
+\vRunDlBestName, on validation (test macro-$F_1$ \vRunDlBestTest). The same
+audit found that the comparator's token sequences were produced by
+disassembling hexadecimal text without decoding it to bytes, so the negative
+deep-learning result holds for that legacy representation and not for
+canonical EVM opcodes. The tabular-feature explanation, under which tree
+ensembles remain dominant~\cite{grinsztajn2022,shwartz2022}, is therefore
+retained as a hypothesis rather than a finding, and we report the
+statistical evidence with the limits that eight paired observations actually
 support.
 \end{abstract}
 
@@ -89,7 +100,7 @@ confidence intervals, DeFi security
 \section{Introduction}\label{sec:intro-v2}
 
 Decentralised finance holds tens of billions of dollars in total value
-locked, and public leaderboards record cumulative losses past USD~3~billion
+locked~\cite{defillama}, and public leaderboards record cumulative losses past USD~3~billion
 from smart-contract exploits since 2016~\cite{rekt}. Contracts holding these
 assets are immutable after deployment, which makes pre-deployment and
 pre-interaction screening the only lever available at scale.
@@ -107,20 +118,21 @@ under suspicion and not for every deployment on the chain.
 
 We position this work against the second obstacle rather than the first. It
 is a Tier-1 pre-filter: a predictor cheap enough to score every deployment,
-whose output decides where the expensive tools are pointed. Its value is not
-that deeper tools cannot run on bytecode, but that they cannot run on
-\emph{everything}.
+whose output decides where the expensive tools are pointed. 
 
 \paragraph{Contributions.}
 \textbf{(i)~A bytecode-only Tier-1 pre-filter} over \vNFeat{} engineered
-features, evaluated with a security-relevant metric suite (FNR, PR-AUC,
+features mapped to the SWC registry~\cite{swcRegistry}, evaluated with a security-relevant metric suite (FNR, PR-AUC,
 precision/recall at a validation-selected threshold).
-\textbf{(ii)~A protocol that cannot flatter the result:} duplicates removed
+\textbf{(ii)~A leakage-resistant evaluation protocol:} duplicates removed
 in feature space, a three-way split with a build-time no-overlap invariant,
 tuning confined to training folds, and a single read of the test split.
-\textbf{(iii)~A deep comparator and an honest account of its defeat:}
-\vDlNConfigs{} Conv-Transformer configurations, compared with paired tests
-whose resolution limits we state explicitly rather than over-claim.
+\textbf{(iii)~A deep-learning comparator that loses:}
+\vDlNConfigs{} Conv-Transformer configurations, compared with paired tests whose resolution limits we state.
+\textbf{(iv)~An executed end-to-end re-run and a representation audit:}
+the whole experiment as one checkpointed notebook, run to completion on a
+Kaggle GPU (Sec.~\ref{sec:rerun-v2}), together with the finding that bounds
+contribution~(iii).
 
 \paragraph{Relation to an earlier version of this work.}
 An earlier preprint reported comparable headline numbers under a protocol we
@@ -142,7 +154,15 @@ false-negative rate of \vBXGBFnr, under a protocol in which the test split
 is read once and duplicates are eliminated in the representation the model
 actually sees. On the eight-class task, classical gradient boosting
 (\vMlXgb) beats every one of \vDlNConfigs{} deep configurations (best
-\vDlBest), at roughly an order of magnitude less compute.
+\vDlBest), at roughly an order of magnitude less compute. A released
+end-to-end re-execution reproduces that ordering on validation
+(\vRunMlXgbVal{} against \vRunDlBestVal) and the binary logistic reference
+exactly, while a provenance audit shows that the deep comparator consumed a
+hexadecimal-character encoding of the bytecode rather than decoded opcodes.
+The negative deep-learning result is therefore a result about that
+representation; whether canonical opcode sequences change it is the question
+the next iteration is designed to answer, under a protocol that treats the
+present test split as already read.
 
 The methodological lesson generalises beyond this dataset. Deduplicating on
 raw bytecode is insufficient whenever features are computed from a
@@ -151,6 +171,29 @@ defeat string-level deduplication while leaving the model's input identical.
 We recommend that bytecode-based work report deduplication at the feature
 level and publish the resulting overlap statistics, as we do here.
 
+\paragraph{Code and data availability.}
+Reference numbers are generated from released artifacts, not typed into the
+prose. The archive contains the corrected splits, a \vReproChecks-comparison
+audit notebook, the controlled-rerun score vectors with a score-level
+sensitivity gate, and, since this revision, the executed two-mode notebook
+(\vRunCells{} cells, run to completion on a Kaggle \vRunGpu) with the
+artifacts behind Sec.~\ref{sec:rerun-v2} The executed-run link below
+carries that notebook with every output, its artifacts, and a verifier
+that recomputes each value in that section from them. Exact historical
+refitting is not claimed because fit-time
+environment and fitted XGBoost were not saved. The source corpus is Rossini's
+Slither-audited dataset~\cite{slitherAudited}; the deep-comparator ablation
+is logged in Weights~\&~Biases~\cite{wandb}. 
+
+\begin{itemize}\itemsep2pt
+\item Code: \url{https://github.com/SergeySolovyev/smart-contract-vuln-detection-from-bytecode}
+\item Data: \url{https://www.kaggle.com/datasets/sergeisolovyev/defi-bytecode-features-v2}
+\item Reproduction: \url{https://www.kaggle.com/code/sergeisolovyev/sc-vuln-v2-reproduction}
+\item Executed run:
+\url{https://github.com/SergeySolovyev/smart-contract-vuln-detection-from-bytecode/tree/main/results/full_run_v12}
+\end{itemize}
+
+\balance
 \bibliographystyle{ICICPEtran}
 \bibliography{references}
 

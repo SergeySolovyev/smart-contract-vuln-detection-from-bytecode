@@ -5,7 +5,7 @@ type: software
 authors:
   - family-names: "Solovev"
     given-names: "Sergei"
-    affiliation: "HSE University"
+    email: "sssolovjov@gmail.com"
 repository-code: "https://github.com/SergeySolovyev/smart-contract-vuln-detection-from-bytecode"
 license: MIT
 preferred-citation:
@@ -14,6 +14,6 @@ preferred-citation:
   authors:
     - family-names: "Solovev"
       given-names: "Sergei"
-      affiliation: "HSE University"
+      email: "sssolovjov@gmail.com"
   year: 2026
-  notes: "Preprint. v2 evaluation complete (all 10 deep configurations); v1 numbers retracted and must not be cited."
+  notes: "Preprint. v2 evaluation complete (all 10 deep configurations); revised 2026-09-07 with a released end-to-end re-execution (Kaggle version 12) and a representation audit showing the deep comparator used a hexadecimal-character encoding; v1 numbers retracted and must not be cited."
