@@ -1,11 +1,11 @@
 % =============================================================================
 % Paper v2 — assembled shell. Every metric reaches this document through
 % numbers_v2.tex, which is regenerated from the run artifacts by
-% scripts/emit_macros_v2.py. Nothing numeric is typed by hand anywhere.
+% 02_code/06_emit_macros_v2.py. Reported metrics use generated macros.
 %
-% Build: pdflatex main_v2 (twice, for references)
-% Verify: python scripts/check_numbers_v2.py (fails if prose and artifacts
-% ever disagree)
+% Build without statistical recomputation: see
+% WORKDIR/sdd/2026-09-09-no-recompute-closure/build_without_recompute.py.
+% Verify reported numbers: python 02_code/08_check_numbers_v2.py.
 % =============================================================================
 \documentclass[twocolumn, 10pt]{article}
 
@@ -48,49 +48,31 @@ Sergei Solovev\\
 \finalcopy
 
 \begin{document}
+\raggedbottom
 
 \twocolumn[
 \maketitle
 \begin{abstract}
-Smart-contract vulnerabilities have caused losses exceeding USD~3~billion in
-decentralised finance, while most Ethereum mainnet contracts ship without
-verified source~\cite{cobra,scannerstudy}, placing them beyond source-required
-analysers such as Slither and leaving symbolic executors, which do read
-bytecode, too costly to run on every deployment. We present a
-lightweight \vNFeat-feature pipeline operating directly on EVM bytecode as a
-Slither-consistent risk-scoring filter, and study both \emph{binary}
-any-vulnerability detection and \emph{multi-label} classification over eight
-vulnerability classes on \vCorpus{} Slither-labelled contracts. Duplicate
-contracts are removed at the level of the compiled feature representation
-rather than the raw bytecode string, which we show is the difference between
-a leaking and a clean split; hyperparameters and thresholds are selected on a
-validation split and the test split is read exactly once. On binary
-detection, gradient boosting reaches $F_1 =$ \vBXGBFone{}
-{[}\vBXGBLo, \vBXGBHi{]} at a false-negative rate of \vBXGBFnr. The reference
-artifacts give a paired XGBoost--RandomForest difference of
-$\Delta F_1 = \vDeltaFone$ (95\% CI {[}\vDeltaLo, \vDeltaHi{]}), whereas a
-controlled rerun gives \vSensDeltaFone{} ({[}\vSensDeltaLo,
-\vSensDeltaHi{]}). Because the latter interval crosses zero and exact
-score-level reproduction holds for only \vSensExactMatches{} models, we treat
-the small gap as environment-sensitive rather than statistically resolved. On
-multi-label classification, classical XGBoost
-(\vMlXgb) outperforms all \vDlNConfigs{} configurations of a
-Conv-Transformer ablation (best \vDlBest). The classical winner's
-training time was never recorded, so we report the timings we have and draw
-no compute ratio from them. A complete end-to-end re-execution of the authorial notebook on a Kaggle
-\vRunGpu, released with this version, reproduces the binary logistic
-reference to three decimals and independently reselects the widest
-Conv-Transformer, \vRunDlBestName{} (test macro-$F_1$ \vRunDlBestTest); it
-consumed the same token representation, so it corroborates the ordering
-rather than the explanation. The same
-audit found that the comparator's token sequences were produced by
-disassembling hexadecimal text without decoding it to bytes, so the negative
-deep-learning result holds for that legacy representation and not for
-canonical EVM opcodes. The tabular-feature explanation, under which tree
-ensembles remain dominant~\cite{grinsztajn2022,shwartz2022}, is therefore
-retained as a hypothesis rather than a finding, and we report the
-statistical evidence with the limits that eight paired observations actually
-support.
+Most Ethereum mainnet contracts are deployed without verified
+source~\cite{cobra,scannerstudy}, which places them beyond source-level
+analysers such as Slither. We study whether a lightweight classifier over
+\vNFeat{} features extracted from EVM bytecode can predict Slither's findings,
+as a prioritisation aid where source is absent. On \vCorpus{} Slither-labelled
+contracts, duplicates are removed on the feature vector the models actually
+see, hyperparameters are tuned on training folds, thresholds are chosen on
+validation, and the test split is read once. Gradient boosting detects
+any-vulnerability contracts at $F_1 =$ \vBXGBFone{} {[}\vBXGBLo, \vBXGBHi{]}
+with a false-negative rate of \vBXGBFnr; its paired advantage over a random
+forest is small and environment-sensitive, since a controlled rerun's
+interval crosses zero. On the eight-class task, XGBoost (macro-$F_1$
+\vMlXgb) scores higher than every one of \vDlNConfigs{} Conv-Transformer
+configurations (best \vDlBest). A provenance audit found that the
+comparator's token sequences were produced by disassembling hexadecimal text
+without decoding it to bytes, so that negative result holds for that
+representation only, and the usual tabular-data explanation remains a
+hypothesis. We also measure what the earlier, text-deduplicated split
+leaked: \vLeakRate{} of its validation contracts had a feature-identical
+twin in training, rising to \vLeakWorstRate{} for \vLeakWorst.
 \end{abstract}
 
 \begin{keyword}
@@ -107,7 +89,7 @@ locked~\cite{defillama}, and public leaderboards record cumulative losses past U
 from smart-contract exploits since 2016~\cite{rekt}. Many of the contracts holding
 these assets are immutable after deployment, and while upgradeable proxy
 patterns and operational controls such as pausing and monitoring exist,
-pre-deployment and pre-interaction screening applies broadly and cheaply.
+pre-deployment and pre-interaction checks remain part of contract security.
 
 Two distinct obstacles stand between a deployed contract and existing
 analysis, and conflating them overstates the case. Source-level static
@@ -116,29 +98,26 @@ substantial fraction of mainnet-deployed contracts never publish---for those,
 bytecode is the only universally available artefact. Symbolic executors such
 as Mythril~\cite{mythril} and Manticore~\cite{manticore} do
 \emph{not} share that limitation: both operate on EVM bytecode directly. Their
-constraint is cost. Symbolic execution spends seconds to minutes per contract
-and grows worse with path count, which is affordable for a contract already
-under suspicion and not for every deployment on the chain.
+computational cost can grow with the number of execution paths. That
+motivates studying screening methods, but this work does not measure a
+matched cost advantage over those tools.
 
-We position this work against the second obstacle rather than the first. It
-is a Tier-1 pre-filter: a predictor cheap enough to score every deployment,
-whose output decides where the expensive tools are pointed. 
+We study a candidate Tier-1 pre-filter: a bytecode predictor that could rank
+contracts for further analysis. The evaluation concerns agreement with
+analyser-derived labels, not the effectiveness of a deployed triage system.
 
 \paragraph{Contributions.}
-\textbf{(i)~A bytecode-only Tier-1 pre-filter} over \vNFeat{} engineered
+\textbf{(i)~A bytecode-only prediction baseline} over \vNFeat{} engineered
 features mapped to the SWC registry~\cite{swcRegistry}, evaluated with a security-relevant metric suite (FNR, PR-AUC,
 precision/recall at a validation-selected threshold).
 \textbf{(ii)~A leakage-resistant evaluation protocol:} duplicates removed
 in feature space, a three-way split with a build-time no-overlap invariant,
-tuning confined to training folds, and a single read of the test split.
+binary hyperparameter search confined to training folds, and
+validation-selected thresholds before reference test evaluation.
 \textbf{(iii)~A deep-learning comparator under the same protocol:}
 \vDlNConfigs{} Conv-Transformer configurations, none of which scores higher
 than gradient boosting on any class, on a token representation we later
 found to be defective (Sec.~\ref{sec:methods}).
-\textbf{(iv)~An executed end-to-end re-run and a representation audit:}
-the whole experiment as one checkpointed notebook, run to completion on a
-Kaggle GPU (Sec.~\ref{sec:rerun-v2}), together with a provenance audit showing the
-comparator consumed hexadecimal text rather than decoded opcodes.
 
 \paragraph{Relation to an earlier version of this work.}
 An earlier preprint reported comparable headline numbers under a protocol we
@@ -147,24 +126,20 @@ which left contracts that are bit-identical in feature space on both sides of
 the split, and the search over hyperparameters was scored on the same data
 used for reporting. The present numbers are produced under the protocol
 described below (Sec.~\ref{sec:data-v2}), and we report both the corrected
-results and the correction itself, because the size of the correction is
-itself evidence about how much such defects matter in this domain.
+results and the measured overlap. Because partition and protocol changed
+together, the score differences do not isolate a causal effect of leakage.
 
 \input{main_v2_body}
 
 \section{Conclusion}\label{sec:concl-v2}
 
-A \vNFeat-feature bytecode-only classifier detects Slither-flagged
-vulnerabilities on held-out contracts at $F_1 =$ \vBXGBFone{} with a
+A \vNFeat-feature bytecode-only classifier predicts mapped Slither findings
+on held-out contracts at $F_1 =$ \vBXGBFone{} with a
 false-negative rate of \vBXGBFnr, under a protocol in which the test split
-is read once and duplicates are eliminated in the representation the model
-actually sees. On the eight-class task, classical gradient boosting
+is evaluated after selection and exact duplicate numeric feature vectors
+are eliminated across partitions. On the eight-class task, classical gradient boosting
 (\vMlXgb) beats every one of \vDlNConfigs{} deep configurations (best
-\vDlBest). A released
-end-to-end re-execution reproduces that ordering on validation
-(\vRunMlXgbVal{} against \vRunDlBestVal) and the binary logistic reference
-to three decimals, while the selected deep configuration scores
-\vRunDlBestTest{} against \vDlBest{} under last-epoch weights. A provenance
+\vDlBest). A provenance
 audit shows that the deep comparator consumed a hexadecimal-character
 encoding of the bytecode rather than decoded opcodes.
 The negative deep-learning result is therefore a result about that
@@ -172,22 +147,24 @@ representation; whether canonical opcode sequences change it is the question
 the next iteration is designed to answer, under a protocol that treats the
 present test split as already read.
 
-The methodological lesson generalises beyond this dataset. Deduplicating on
-raw bytecode is insufficient whenever features are computed from a
-normalised view of that bytecode: compiler metadata alone is enough to
-defeat string-level deduplication while leaving the model's input identical.
-We recommend that bytecode-based work report deduplication at the feature
-level and publish the resulting overlap statistics, as we do here.
+The overlap audit shows why deduplication should be checked in the
+representation actually used by a model: different stored sequences can
+produce identical feature vectors. Publishing those overlap statistics
+makes one source of evaluation bias visible, without establishing that all
+other dependencies have been removed.
 
 \paragraph{Code and data availability.}
-Reference numbers are generated from released artifacts, not typed into the
-prose. The archive contains the corrected splits, a \vReproChecks-comparison
-audit notebook, the controlled-rerun score vectors with a score-level
-sensitivity gate, and, since this revision, the executed notebook of
-Sec.~\ref{sec:rerun-v2} with the artifacts behind its numbers. The executed-run link below
-carries that notebook with every output, its artifacts, and a verifier
-that recomputes each value in that section from them. Exact historical
-refitting is not claimed because fit-time
+The archive contains the corrected splits, a \vReproChecks-comparison
+audit notebook, the controlled-rerun score vectors, and an executed notebook that re-runs the full experiment
+from scratch on a Kaggle \vRunGpu, with its artifacts and a verifier (the
+executed-run link below). That re-execution reproduces the binary logistic
+reference to three decimals and again ranks XGBoost above every deep
+configuration; its selected deep model scores \vRunDlBestTest{} on the test
+split against \vDlBest{} in the reference, under last-epoch weights. It read
+the same test partition, so it is not a new untouched test, and both runs
+consumed the same legacy representation, so it corroborates the ordering
+rather than the explanation. It did not export raw final predictions, so its
+metrics are checked against saved records rather than recomputed. Exact refitting of the reference run is not claimed because fit-time
 environment and fitted XGBoost were not saved. The source corpus is Rossini's
 Slither-audited dataset~\cite{slitherAudited}; the deep-comparator ablation
 is logged in Weights~\&~Biases~\cite{wandb}. 
@@ -200,7 +177,6 @@ is logged in Weights~\&~Biases~\cite{wandb}.
 \url{https://github.com/SergeySolovyev/smart-contract-vuln-detection-from-bytecode/tree/main/results/full_run_v12}
 \end{itemize}
 
-\balance
 \bibliographystyle{ICICPEtran}
 \bibliography{references}
 
