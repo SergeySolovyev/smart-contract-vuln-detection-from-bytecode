@@ -444,7 +444,7 @@ representation. The decoded-opcode check covers one configuration under one
 seed, scored on the validation split; it is not a test-split result. On \vFeatRows{} sampled
 contracts, \vFeatExact{} of the \vNFeat{} released feature columns are exactly
 an affine image of the audited extractor's output on the re-attached
-bytecode; the remaining columns are constant across that sample rather than
+bytecode; the rest are constant across that sample rather than
 contradicted, and no column was checked on every row.
 \textbf{(vi)~Cost.} Wall-clock training time survives for \vDlTimeN{} of the
 \vDlTimeOf{} deep configurations (\vDlTimeLo{} to \vDlTimeHi{}~s on a GPU).
