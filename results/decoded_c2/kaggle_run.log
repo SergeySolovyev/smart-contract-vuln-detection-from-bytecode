@@ -1,0 +1,146 @@
+[{"stream_name":"stderr","time":7.593757844,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":7.593818159,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":7.5938256,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":7.5938297,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":8.21332369,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":8.21335646,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":8.213359923,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":8.213362494,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":22.137288483,"data":"python 3.12.13 | torch 2.10.0+cu128 | cuda True | gpu Tesla T4\n"}
+,{"stream_name":"stdout","time":22.137345635,"data":"xgboost 3.2.0 | sklearn 1.6.1 | cpus 4\n"}
+,{"stream_name":"stdout","time":22.137352483,"data":"data dir: /kaggle/input/defi-bytecode-features-v2 | SMOKE: False | legacy control: True\n"}
+,{"stream_name":"stdout","time":30.402639164,"data":"train_v2.parquet: rows 89,973 | sha256 3a93e58df54e989e... | matches manifest: True\n"}
+,{"stream_name":"stdout","time":31.131919492,"data":"val_v2.parquet: rows 11,247 | sha256 125937bc29ef9658... | matches manifest: True\n"}
+,{"stream_name":"stdout","time":31.188416254,"data":"train (89973, 67) | val (11247, 67) | positive rate 0.6901 | rows for the deep runs: 89973 / 11247\n"}
+,{"stream_name":"stdout","time":234.229100604,"data":"released rows keyed: train 89,973 | val 11,247 | distinct keys 101,220 | distinct 120-token prefixes 50,755 | 203s\n"}
+,{"stream_name":"stdout","time":269.450242819,"data":"  contracts0: upstream rows 15,000 | re-attached keys 12,801/101,220\n"}
+,{"stream_name":"stderr","time":303.399767842,"data":"Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n"}
+,{"stream_name":"stderr","time":303.399808274,"data":"\n"}
+,{"stream_name":"stderr","time":303.399814264,"data":"Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n"}
+,{"stream_name":"stdout","time":303.410953402,"data":"  contracts1: upstream rows 30,000 | re-attached keys 25,439/101,220\n"}
+,{"stream_name":"stdout","time":337.166256395,"data":"  contracts2: upstream rows 45,000 | re-attached keys 38,015/101,220\n"}
+,{"stream_name":"stdout","time":372.616231114,"data":"  contracts3: upstream rows 60,000 | re-attached keys 50,652/101,220\n"}
+,{"stream_name":"stdout","time":407.533651184,"data":"  contracts4: upstream rows 75,000 | re-attached keys 63,203/101,220\n"}
+,{"stream_name":"stdout","time":442.931922257,"data":"  contracts5: upstream rows 90,000 | re-attached keys 75,831/101,220\n"}
+,{"stream_name":"stdout","time":477.990066192,"data":"  contracts6: upstream rows 105,000 | re-attached keys 88,386/101,220\n"}
+,{"stream_name":"stdout","time":512.956771094,"data":"  contracts7: upstream rows 120,000 | re-attached keys 100,730/101,220\n"}
+,{"stream_name":"stdout","time":514.313604723,"data":"  contracts8: upstream rows 120,608 | re-attached keys 101,220/101,220\n"}
+,{"stream_name":"stdout","time":514.313636623,"data":"train: 89,973/89,973 rows re-attached (100.00%)\n"}
+,{"stream_name":"stdout","time":514.313642662,"data":"val: 11,247/11,247 rows re-attached (100.00%)\n"}
+,{"stream_name":"stdout","time":514.313663606,"data":"upstream contracts 120,608 | unusable 394 | projection collisions with different bytecode: 3 | 280s\n"}
+,{"stream_name":"stdout","time":516.203419814,"data":"sample of 2,000 train rows: solc preamble 1,976 | metadata stripped 1,989 | decoded tokens median 3,700 (max 17,832) | INVALID per contract median 1\n"}
+,{"stream_name":"stdout","time":516.203458258,"data":"example: PUSH1 PUSH1 MSTORE PUSH1 CALLDATASIZE LT PUSH2 JUMPI PUSH4 PUSH29 PUSH1 CALLDATALOAD DIV AND PUSH4 DUP2 EQ PUSH2 JUMPI DUP1 PUSH4 EQ PUSH2 JUMPI DUP1 PUSH4 EQ P\n"}
+,{"stream_name":"stdout","time":549.027323477,"data":"recomputed 1,200 contracts x 67 features in 32s\n"}
+,{"stream_name":"stdout","time":549.027385105,"data":"released = affine(recomputed) exactly: 66/67 features\n"}
+,{"stream_name":"stdout","time":549.027416916,"data":"constant across the sample (no test possible): 1 ['has_reentrancy_indicators']\n"}
+,{"stream_name":"stdout","time":605.80869573,"data":"multi-label XGBoost: fit 56.0 s on 4 CPUs | predict 11,247 rows in 0.48 s | validation macro-F1 0.7653\n"}
+,{"stream_name":"stdout","time":606.135286564,"data":"rows for both arms: train 89,973 | val 11,247\n"}
+,{"stream_name":"stdout","time":632.640890678,"data":"[decoded] vocabulary 144 | fitted in 27s\n"}
+,{"stream_name":"stdout","time":762.085668629,"data":"  encoded 89,973 | length median 3,659 | truncated at 20000: 0\n"}
+,{"stream_name":"stdout","time":778.175237295,"data":"  encoded 11,247 | length median 3,651 | truncated at 20000: 0\n"}
+,{"stream_name":"stdout","time":838.429456257,"data":"\n"}
+,{"stream_name":"stdout","time":838.429487927,"data":"============================================================\n"}
+,{"stream_name":"stdout","time":838.429493812,"data":"DL run: C2_dmodel_256_decoded\n"}
+,{"stream_name":"stdout","time":838.429498599,"data":"============================================================\n"}
+,{"stream_name":"stdout","time":838.42950311,"data":"  params=3.08M В· train=71979 val=17994\n"}
+,{"stream_name":"stderr","time":838.644704796,"data":"/tmp/ipykernel_23/643123440.py:167: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True\n"}
+,{"stream_name":"stderr","time":838.644739254,"data":"  self.transformer = nn.TransformerEncoder(\n"}
+,{"stream_name":"stderr","time":838.644743503,"data":"\n"}
+,{"stream_name":"stderr","time":838.644746774,"data":"/tmp/ipykernel_23/643123440.py:167: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True\n"}
+,{"stream_name":"stderr","time":838.644751239,"data":"  self.transformer = nn.TransformerEncoder(\n"}
+,{"stream_name":"stdout","time":1630.613085493,"data":"  [ 1/20] tr=0.8940 vl=0.7999 f1=0.5105  \n"}
+,{"stream_name":"stdout","time":2415.060517527,"data":"  [ 2/20] tr=0.7535 vl=0.7410 f1=0.5437  \n"}
+,{"stream_name":"stdout","time":3199.388900439,"data":"  [ 3/20] tr=0.6894 vl=0.6726 f1=0.5759  \n"}
+,{"stream_name":"stdout","time":3984.056005359,"data":"  [ 4/20] tr=0.6001 vl=0.7569 f1=0.6079  \n"}
+,{"stream_name":"stdout","time":4768.69966626,"data":"  [ 5/20] tr=0.4926 vl=0.9390 f1=0.6118  \n"}
+,{"stream_name":"stdout","time":5552.869508758,"data":"  [ 6/20] tr=0.4031 vl=1.2281 f1=0.6447  \n"}
+,{"stream_name":"stdout","time":6337.060923469,"data":"  [ 7/20] tr=0.3232 vl=1.2246 f1=0.6434\n"}
+,{"stream_name":"stdout","time":7120.260816605,"data":"  [ 8/20] tr=0.2563 vl=1.5881 f1=0.6642  \n"}
+,{"stream_name":"stdout","time":7904.356386819,"data":"  [ 9/20] tr=0.2101 vl=1.8143 f1=0.6639\n"}
+,{"stream_name":"stdout","time":8688.142587936,"data":"  [10/20] tr=0.1660 vl=2.1018 f1=0.6718  \n"}
+,{"stream_name":"stdout","time":9471.0544356,"data":"  [11/20] tr=0.1283 vl=2.3474 f1=0.6771  \n"}
+,{"stream_name":"stdout","time":10255.410340749,"data":"  [12/20] tr=0.0904 vl=2.5316 f1=0.6753\n"}
+,{"stream_name":"stdout","time":11039.008005109,"data":"  [13/20] tr=0.0631 vl=2.7159 f1=0.6725\n"}
+,{"stream_name":"stdout","time":11823.760292567,"data":"  [14/20] tr=0.0397 vl=2.9680 f1=0.6757\n"}
+,{"stream_name":"stdout","time":12608.392742142,"data":"  [15/20] tr=0.0307 vl=3.2809 f1=0.6786  \n"}
+,{"stream_name":"stdout","time":13393.208961919,"data":"  [16/20] tr=0.0207 vl=3.3596 f1=0.6731\n"}
+,{"stream_name":"stdout","time":14178.17839865,"data":"  [17/20] tr=0.0173 vl=3.5806 f1=0.6741\n"}
+,{"stream_name":"stdout","time":14962.723800532,"data":"  [18/20] tr=0.0144 vl=3.5663 f1=0.6765\n"}
+,{"stream_name":"stdout","time":15747.069704265,"data":"  [19/20] tr=0.0121 vl=3.6153 f1=0.6770\n"}
+,{"stream_name":"stdout","time":16531.39095263,"data":"  [20/20] tr=0.0120 vl=3.7211 f1=0.6770\n"}
+,{"stream_name":"stdout","time":16531.390986173,"data":"  early stop after 20 epochs\n"}
+,{"stream_name":"stdout","time":16566.416198836,"data":"\n"}
+,{"stream_name":"stdout","time":16566.416242625,"data":"C2_dmodel_256_decoded: F1_ext=0.6841 В· 261.5 min\n"}
+,{"stream_name":"stdout","time":16566.416248575,"data":"[decoded] C2 validation macro-F1 0.6841 | best epoch 15 of 20 | 261.5 min\n"}
+,{"stream_name":"stdout","time":16602.394744267,"data":"[legacy] vocabulary 498 | fitted in 36s\n"}
+,{"stream_name":"stdout","time":16790.454027389,"data":"  encoded 89,973 | length median 8,803 | truncated at 20000: 11,920\n"}
+,{"stream_name":"stdout","time":16813.53466949,"data":"  encoded 11,247 | length median 8,786 | truncated at 20000: 1,460\n"}
+,{"stream_name":"stdout","time":16813.534726152,"data":"\n"}
+,{"stream_name":"stdout","time":16813.534732204,"data":"============================================================\n"}
+,{"stream_name":"stdout","time":16813.534737068,"data":"DL run: C2_dmodel_256_legacy\n"}
+,{"stream_name":"stdout","time":16813.534741607,"data":"============================================================\n"}
+,{"stream_name":"stdout","time":16813.534746115,"data":"  params=3.17M В· train=71979 val=17994\n"}
+,{"stream_name":"stderr","time":16813.621260017,"data":"/tmp/ipykernel_23/643123440.py:167: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True\n"}
+,{"stream_name":"stderr","time":16813.621300448,"data":"  self.transformer = nn.TransformerEncoder(\n"}
+,{"stream_name":"stderr","time":16813.621306444,"data":"\n"}
+,{"stream_name":"stderr","time":16813.621310776,"data":"/tmp/ipykernel_23/643123440.py:167: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True\n"}
+,{"stream_name":"stderr","time":16813.621314922,"data":"  self.transformer = nn.TransformerEncoder(\n"}
+,{"stream_name":"stdout","time":17609.584088823,"data":"  [ 1/20] tr=0.8967 vl=0.7140 f1=0.4805  \n"}
+,{"stream_name":"stdout","time":18404.833310414,"data":"  [ 2/20] tr=0.7400 vl=0.7132 f1=0.5336  \n"}
+,{"stream_name":"stdout","time":19199.859068785,"data":"  [ 3/20] tr=0.6816 vl=0.7363 f1=0.5872  \n"}
+,{"stream_name":"stdout","time":19994.471471247,"data":"  [ 4/20] tr=0.5289 vl=0.7693 f1=0.5817\n"}
+,{"stream_name":"stdout","time":20788.388729117,"data":"  [ 5/20] tr=0.3896 vl=1.1509 f1=0.6016  \n"}
+,{"stream_name":"stdout","time":21582.584256792,"data":"  [ 6/20] tr=0.3070 vl=1.1655 f1=0.6102  \n"}
+,{"stream_name":"stdout","time":22377.877091253,"data":"  [ 7/20] tr=0.2314 vl=1.5072 f1=0.6431  \n"}
+,{"stream_name":"stdout","time":23172.945550885,"data":"  [ 8/20] tr=0.1762 vl=1.7087 f1=0.6583  \n"}
+,{"stream_name":"stdout","time":23966.958328988,"data":"  [ 9/20] tr=0.1438 vl=2.0738 f1=0.6549\n"}
+,{"stream_name":"stdout","time":24760.946109165,"data":"  [10/20] tr=0.1032 vl=2.1890 f1=0.6668  \n"}
+,{"stream_name":"stdout","time":25556.045650219,"data":"  [11/20] tr=0.0726 vl=2.5754 f1=0.6601\n"}
+,{"stream_name":"stdout","time":26350.722147622,"data":"  [12/20] tr=0.0572 vl=2.6755 f1=0.6579\n"}
+,{"stream_name":"stdout","time":27144.749749167,"data":"  [13/20] tr=0.0326 vl=2.9505 f1=0.6573\n"}
+,{"stream_name":"stdout","time":27938.739696278,"data":"  [14/20] tr=0.0196 vl=3.2385 f1=0.6608\n"}
+,{"stream_name":"stdout","time":28732.864268037,"data":"  [15/20] tr=0.0142 vl=3.4363 f1=0.6584\n"}
+,{"stream_name":"stdout","time":28732.864307437,"data":"  early stop after 15 epochs\n"}
+,{"stream_name":"stdout","time":28768.720290983,"data":"\n"}
+,{"stream_name":"stdout","time":28768.720327467,"data":"C2_dmodel_256_legacy: F1_ext=0.6567 В· 198.7 min\n"}
+,{"stream_name":"stdout","time":28768.720333708,"data":"[legacy] C2 validation macro-F1 0.6567 | best epoch 10 of 15 | 198.7 min\n"}
+,{"stream_name":"stdout","time":28768.791037119,"data":"model                                       macro-F1   note\n"}
+,{"stream_name":"stdout","time":28768.791065841,"data":"------------------------------------------------------------------------\n"}
+,{"stream_name":"stdout","time":28768.79107153,"data":"XGBoost, this run (val)                       0.7653   fit 56 s on 4 CPUs\n"}
+,{"stream_name":"stdout","time":28768.791075958,"data":"XGBoost, released run (val)                   0.7518   reference\n"}
+,{"stream_name":"stdout","time":28768.791080487,"data":"C2 decoded opcodes, this run (val)            0.6841   261 min, 20 epochs\n"}
+,{"stream_name":"stdout","time":28768.79108527,"data":"C2 legacy tokens, this run (val)              0.6567   199 min, 15 epochs\n"}
+,{"stream_name":"stdout","time":28768.79108964,"data":"C2 legacy tokens, released run (val)          0.6578   reference\n"}
+,{"stream_name":"stdout","time":28768.79109413,"data":"\n"}
+,{"stream_name":"stdout","time":28768.791098622,"data":"written: ['c2_decoded.json', 'c2_legacy.json', 'feature_provenance.json', 'summary.json', 'xgb_timing.json']\n"}
+,{"stream_name":"stdout","time":28768.7911034,"data":"\n"}
+,{"stream_name":"stdout","time":28768.791107667,"data":"========================================================================\n"}
+,{"stream_name":"stdout","time":28768.791112428,"data":"every number this run contributes to the paper\n"}
+,{"stream_name":"stdout","time":28768.791116949,"data":"========================================================================\n"}
+,{"stream_name":"stdout","time":28768.791121547,"data":"  vDecodedVal          0.6841   cell 7, C2 on decoded opcodes, val_v2 macro-F1\n"}
+,{"stream_name":"stdout","time":28768.791126069,"data":"  vLegacyVal           0.6567   cell 8, same C2 on legacy tokens\n"}
+,{"stream_name":"stdout","time":28768.791131401,"data":"  vDecXgbVal           0.7653   cell 6, multi-label XGBoost, val_v2 macro-F1\n"}
+,{"stream_name":"stdout","time":28768.791136092,"data":"  vXgbFitS                 56   cell 6, wall clock of the XGBoost fit, seconds\n"}
+,{"stream_name":"stdout","time":28768.791140785,"data":"  vXgbCpus                  4   cell 6, CPU cores of this session\n"}
+,{"stream_name":"stdout","time":28768.791145404,"data":"  vDecodedMin             261   cell 7, GPU training minutes\n"}
+,{"stream_name":"stdout","time":28768.791149761,"data":"  vLegacyMin              199   cell 8, GPU training minutes\n"}
+,{"stream_name":"stdout","time":28768.791175665,"data":"  vDecGapAbs             2.74   decoded minus legacy, percentage points\n"}
+,{"stream_name":"stdout","time":28768.791193595,"data":"  vDecXgbGapAbs          8.12   XGBoost minus decoded, percentage points\n"}
+,{"stream_name":"stdout","time":28768.791197819,"data":"  vDecTrainRows        89,973   cell 7, contracts both arms trained on\n"}
+,{"stream_name":"stdout","time":28768.791202161,"data":"  vDecValRows          11,247   cell 7, contracts both arms scored on\n"}
+,{"stream_name":"stdout","time":28768.791206112,"data":"  vDecRowsPct          100.0%   cell 3, released rows whose bytecode was re-attached\n"}
+,{"stream_name":"stdout","time":28768.79121019,"data":"  vDecUpstream        120,608   cell 3, upstream contracts scanned\n"}
+,{"stream_name":"stdout","time":28768.791213854,"data":"  vDecVocab               144   cell 7, decoded-opcode vocabulary\n"}
+,{"stream_name":"stdout","time":28768.791217288,"data":"  vDecLenMed            3,700   cell 3, median decoded tokens per contract\n"}
+,{"stream_name":"stdout","time":28768.791220464,"data":"\n"}
+,{"stream_name":"stdout","time":28768.791225323,"data":"feature provenance (cell 4b): 66/67 released features are an exact affine image of the extractor's output on the re-attached bytecode\n"}
+,{"stream_name":"stdout","time":28768.791235309,"data":"reference points NOT recomputed here: {'legacy_C2_val_full_run_v12': 0.6578, 'xgb_val_full_run_v12': 0.7518, 'legacy_C2_test_paper': 0.6793}\n"}
+,{"stream_name":"stderr","time":28774.166903625,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":28774.166940767,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":28774.329620089,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":28774.329660465,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":28774.940297599,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":28775.268508773,"data":"[NbConvertApp] Writing 209790 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":28777.556955689,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":28778.649049071,"data":"[NbConvertApp] Writing 719078 bytes to __results__.html\n"}
+]

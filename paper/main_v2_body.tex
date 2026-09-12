@@ -180,8 +180,16 @@ Unknown-token mapping and length truncation add further possible loss. This
 counterexample establishes non-injectivity, not its frequency or effect on
 scores in the corpus. The audited numeric-feature extractor instead calls
 \texttt{bytes.fromhex} before disassembly and does not have this input-type
-error. Every deep-learning number in this paper describes the legacy
-sequence pipeline, not canonical EVM opcode modelling.
+error. Every test-split deep-learning number in this paper describes the
+legacy sequence pipeline. The released rows carry only that text, and it is
+not invertible, since the PUSH operands were removed; the upstream
+corpus~\cite{slitherAudited} still carries the deployed bytecode, and the
+converter's projection is deterministic, so recomputing it on each of the
+\vDecUpstream{} upstream contracts re-attaches the bytecode to every training and validation row by exact
+match.
+Sec.~\ref{sec:ml-v2} reports the best deep configuration retrained on
+those bytes, decoded to one mnemonic per instruction with the PUSH
+operands and the metadata trailer removed.
 
 \paragraph{Bootstrap confidence intervals.}
 Headline binary metrics carry stratified percentile bootstrap 95\% intervals
@@ -311,6 +319,31 @@ representation described in Sec.~\ref{sec:methods}, in which the comparator
 was fed the hexadecimal text of the bytecode rather than its decoded opcodes.
 \vDlCaveat
 
+\paragraph{Decoded opcodes.}
+To test whether the representation defect explains that gap, the best
+configuration, \vDlBestName, was retrained on the re-attached bytecode of
+Sec.~\ref{sec:methods}, decoded to one mnemonic per instruction
+(vocabulary \vDecVocab, median \vDecLenMed{} tokens per contract), with
+the legacy tokens as the control: same code, seed, rows (\vDecTrainRows{}
+training and \vDecValRows{} validation contracts) and internal carve-out,
+differing only in the input. Because the test split had already been read,
+both runs are scored on the validation split, and the classical model was
+refitted and scored there under the same conditions. The decoded input
+reaches macro-$F_1 =$ \vDecodedVal, \vDecGapAbs~p.p.\ above the legacy
+control (\vLegacyVal) and trailing XGBoost on the same split (\vDecXgbVal)
+by \vDecXgbGapAbs~p.p. For this configuration the defect does not explain the gap: with a
+correct input the deep model still scores below gradient boosting.
+This is a validation-level result for one configuration, not a new
+test-split number. The two inputs also differ in length: at the
+\vSeqCap-token cap the model reads, the decoded stream fits whole while the
+legacy text is cut for \vLegTruncPct{} of training contracts (median
+\vLegLenMed{} tokens against \vDecLenMed), so the difference between the arms
+is not purely one of meaning. The decoded arm was executed \vDecRunsN{} times in all,
+on three machines, with the same code, data and seed; the scores span
+\vDecSpread~p.p.\ (lowest \vDecLowest), so the \vDecGapAbs~p.p.\ the decoding
+buys is close to that spread and the \vDecXgbGapAbs~p.p.\ still separating it
+from gradient boosting is well outside it.
+
 \paragraph{Per-class comparison.}
 XGBoost scores higher in \vDlWins{} classes against \vDlBestName{} and
 against every other deep configuration (Figure~\ref{fig:heatmap-v2});
@@ -358,14 +391,16 @@ leaning on.
 
 \section{Discussion and Future Work}\label{sec:disc}
 
-\paragraph{Why the comparator lost is not established.}
+\paragraph{Why the comparator lost.}
 The \vNFeat{} features form a mid-dimensional tabular representation, the
 regime in which tree ensembles are reported to outperform deep
-networks~\cite{grinsztajn2022,shwartz2022}. That is one candidate
-explanation for the gap, and this design cannot separate it from the
-representation defect of Sec.~\ref{sec:methods}. What is measured is
-narrower: on this corpus, under this protocol, with this representation,
-gradient boosting on \vNFeat{} features scores higher on every class.
+networks~\cite{grinsztajn2022,shwartz2022}. The decoded-opcode run of
+Sec.~\ref{sec:ml-v2} removes the other candidate explanation at validation
+level: with a correct input the best deep configuration moves
+\vDecGapAbs~p.p.\ relative to its legacy control and still trails XGBoost
+by \vDecXgbGapAbs~p.p. What is measured on the test split remains a result
+for the legacy representation; what the validation run adds is that
+correcting the representation does not reverse the ordering.
 
 \paragraph{Future work.}
 Potential comparators include bytecode graph models such as
@@ -373,11 +408,10 @@ ByteEye~\cite{byteeye}, COBRA's recurrent sequence and interface-feature
 model~\cite{cobra}, and multimodal or multi-agent approaches. COBRA and
 ByteEye do not require verified source at inference; their resource needs
 have not been measured against this pipeline. Before extending the model
-comparison, the input needs correction: decode the
-bytecode before disassembly, re-split the corpus by contract family, and
-confirm on a partition that excludes every contract of the present test
-split. That protocol is written and released with the archive; its execution
-is future work.
+comparison on the test split, the corpus needs re-splitting by contract
+family and a partition that excludes every contract of the present test
+split; the decoded input of Sec.~\ref{sec:ml-v2} then needs a test-level
+run under that partition.
 
 \paragraph{Limitations.}
 \textbf{(i)~Target and deployment validity.} Agreement with mapped Slither
@@ -403,13 +437,18 @@ answers a within-split question and does not resolve that broader uncertainty.
 absolute SHAP, computed on the same protocol-matched refit, share three of their top five
 features and less beyond that. We report the overlap rather than treat it
 as corroboration.
-\textbf{(v)~Legacy sequence representation.} The deep comparator's inputs
-were produced by disassembling hexadecimal text without decoding it
-(Sec.~\ref{sec:methods}); its results characterise that representation, not
-canonical EVM opcode sequences. The audited numeric extractor decodes bytes
-first; this is not an all-row semantic validation of its features.
+\textbf{(v)~Legacy sequence representation.} The deep comparator's
+test-split inputs were produced by disassembling hexadecimal text without
+decoding it (Sec.~\ref{sec:methods}); those results characterise that
+representation. The decoded-opcode check covers one configuration under one
+seed, scored on the validation split; it is not a test-split result. On \vFeatRows{} sampled
+contracts, \vFeatExact{} of the \vNFeat{} released feature columns are exactly
+an affine image of the audited extractor's output on the re-attached
+bytecode; the remaining columns are constant across that sample rather than
+contradicted, and no column was checked on every row.
 \textbf{(vi)~Cost.} Wall-clock training time survives for \vDlTimeN{} of the
-\vDlTimeOf{} deep configurations (\vDlTimeLo{} to \vDlTimeHi{}~s on a GPU);
-the classical multi-label fit was not timed and inference cost was not
-measured under the present pipeline, so no compute or throughput
-comparison is drawn.
+\vDlTimeOf{} deep configurations (\vDlTimeLo{} to \vDlTimeHi{}~s on a GPU).
+In the decoded-opcode run the classical multi-label fit took \vXgbFitS~s on
+\vXgbCpus{} CPU cores, and the deep configuration \vDecodedMin~min of
+\vDecGpu{} time over \vDecodedEpochs{} epochs on the same machine; inference
+cost was not measured, so no throughput comparison is drawn.

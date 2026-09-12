@@ -1,0 +1,157 @@
+{
+  "what": "every execution of the decoded arm, same code, data and seed, different machines",
+  "runs": [
+    {
+      "machine": "Kaggle Tesla T4",
+      "role": "the run this paper cites",
+      "macro_f1_external": 0.6841037273406982,
+      "best_epoch": 15,
+      "total_epochs": 20,
+      "train_time_sec": 15687.035147190094,
+      "record": "complete, in c2_decoded.json"
+    },
+    {
+      "machine": "Colab A100",
+      "role": "repetition",
+      "macro_f1_external": 0.6826794147491455,
+      "best_epoch": 12,
+      "total_epochs": 17,
+      "train_time_sec": 1954.1488313674927,
+      "record": "complete, with per-epoch history, in this file"
+    },
+    {
+      "machine": "Colab Tesla T4",
+      "role": "repetition",
+      "macro_f1_external": 0.669050395488739,
+      "best_epoch": 16,
+      "total_epochs": 20,
+      "train_time_sec": 15579.481060504913,
+      "record": "partial: the machine was reclaimed before its record could be saved; these fields are as the run emitted them (see WORKDIR/sdd/2026-09-10-decoded-run/COLAB_RUNS.md)"
+    }
+  ],
+  "n": 3,
+  "lowest": 0.669050395488739,
+  "highest": 0.6841037273406982,
+  "spread_pp": 1.51,
+  "a100_history": [
+    {
+      "epoch": 1,
+      "tr_loss": 0.888773587626342,
+      "vl_loss": 0.8507622496954823,
+      "f1_macro": 0.5104116201400757,
+      "subset_acc": 0.39479827880859375
+    },
+    {
+      "epoch": 2,
+      "tr_loss": 0.7441263080900281,
+      "vl_loss": 0.7261103111147099,
+      "f1_macro": 0.5357982516288757,
+      "subset_acc": 0.4342002868652344
+    },
+    {
+      "epoch": 3,
+      "tr_loss": 0.6882325120682328,
+      "vl_loss": 0.6862309683233125,
+      "f1_macro": 0.5732961297035217,
+      "subset_acc": 0.5190619230270386
+    },
+    {
+      "epoch": 4,
+      "tr_loss": 0.587004408019841,
+      "vl_loss": 0.8069949040376333,
+      "f1_macro": 0.6013003587722778,
+      "subset_acc": 0.5285094976425171
+    },
+    {
+      "epoch": 5,
+      "tr_loss": 0.4947745275510023,
+      "vl_loss": 0.8794417209071134,
+      "f1_macro": 0.6079926490783691,
+      "subset_acc": 0.5437368154525757
+    },
+    {
+      "epoch": 6,
+      "tr_loss": 0.38902572018841924,
+      "vl_loss": 1.0471958410041629,
+      "f1_macro": 0.6048812866210938,
+      "subset_acc": 0.5493497848510742
+    },
+    {
+      "epoch": 7,
+      "tr_loss": 0.3006468286348367,
+      "vl_loss": 1.227938371167337,
+      "f1_macro": 0.6435311436653137,
+      "subset_acc": 0.5752472877502441
+    },
+    {
+      "epoch": 8,
+      "tr_loss": 0.24745177420594971,
+      "vl_loss": 1.4856618339251952,
+      "f1_macro": 0.6537611484527588,
+      "subset_acc": 0.5934755802154541
+    },
+    {
+      "epoch": 9,
+      "tr_loss": 0.20971686525505595,
+      "vl_loss": 1.6334466525146771,
+      "f1_macro": 0.6596084237098694,
+      "subset_acc": 0.611426055431366
+    },
+    {
+      "epoch": 10,
+      "tr_loss": 0.16239464202065013,
+      "vl_loss": 1.9564992991754635,
+      "f1_macro": 0.6747405529022217,
+      "subset_acc": 0.625041663646698
+    },
+    {
+      "epoch": 11,
+      "tr_loss": 0.1175118091815122,
+      "vl_loss": 2.359007406277141,
+      "f1_macro": 0.6676024198532104,
+      "subset_acc": 0.6252083778381348
+    },
+    {
+      "epoch": 12,
+      "tr_loss": 0.09244782504726658,
+      "vl_loss": 2.3733038335054784,
+      "f1_macro": 0.6773751974105835,
+      "subset_acc": 0.6378237009048462
+    },
+    {
+      "epoch": 13,
+      "tr_loss": 0.06034049234006906,
+      "vl_loss": 2.503195083630248,
+      "f1_macro": 0.6761236190795898,
+      "subset_acc": 0.6380460262298584
+    },
+    {
+      "epoch": 14,
+      "tr_loss": 0.041675636587806375,
+      "vl_loss": 3.011618237648061,
+      "f1_macro": 0.6665184497833252,
+      "subset_acc": 0.6441591382026672
+    },
+    {
+      "epoch": 15,
+      "tr_loss": 0.030202394462222903,
+      "vl_loss": 3.3655929493615266,
+      "f1_macro": 0.6567016243934631,
+      "subset_acc": 0.6458819508552551
+    },
+    {
+      "epoch": 16,
+      "tr_loss": 0.021000618032372315,
+      "vl_loss": 3.462505020458751,
+      "f1_macro": 0.6623852252960205,
+      "subset_acc": 0.6470490097999573
+    },
+    {
+      "epoch": 17,
+      "tr_loss": 0.017671509115860344,
+      "vl_loss": 3.634967192313506,
+      "f1_macro": 0.6613152623176575,
+      "subset_acc": 0.647215723991394
+    }
+  ]
+}

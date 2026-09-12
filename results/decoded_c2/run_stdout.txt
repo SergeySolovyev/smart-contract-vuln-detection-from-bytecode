@@ -1,0 +1,145 @@
+0.00s - Debugger warning: It seems that frozen modules are being used, which may
+0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+0.00s - to python to disable frozen modules.
+0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+0.00s - Debugger warning: It seems that frozen modules are being used, which may
+0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+0.00s - to python to disable frozen modules.
+0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+python 3.12.13 | torch 2.10.0+cu128 | cuda True | gpu Tesla T4
+xgboost 3.2.0 | sklearn 1.6.1 | cpus 4
+data dir: /kaggle/input/defi-bytecode-features-v2 | SMOKE: False | legacy control: True
+train_v2.parquet: rows 89,973 | sha256 3a93e58df54e989e... | matches manifest: True
+val_v2.parquet: rows 11,247 | sha256 125937bc29ef9658... | matches manifest: True
+train (89973, 67) | val (11247, 67) | positive rate 0.6901 | rows for the deep runs: 89973 / 11247
+released rows keyed: train 89,973 | val 11,247 | distinct keys 101,220 | distinct 120-token prefixes 50,755 | 203s
+  contracts0: upstream rows 15,000 | re-attached keys 12,801/101,220
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+  contracts1: upstream rows 30,000 | re-attached keys 25,439/101,220
+  contracts2: upstream rows 45,000 | re-attached keys 38,015/101,220
+  contracts3: upstream rows 60,000 | re-attached keys 50,652/101,220
+  contracts4: upstream rows 75,000 | re-attached keys 63,203/101,220
+  contracts5: upstream rows 90,000 | re-attached keys 75,831/101,220
+  contracts6: upstream rows 105,000 | re-attached keys 88,386/101,220
+  contracts7: upstream rows 120,000 | re-attached keys 100,730/101,220
+  contracts8: upstream rows 120,608 | re-attached keys 101,220/101,220
+train: 89,973/89,973 rows re-attached (100.00%)
+val: 11,247/11,247 rows re-attached (100.00%)
+upstream contracts 120,608 | unusable 394 | projection collisions with different bytecode: 3 | 280s
+sample of 2,000 train rows: solc preamble 1,976 | metadata stripped 1,989 | decoded tokens median 3,700 (max 17,832) | INVALID per contract median 1
+example: PUSH1 PUSH1 MSTORE PUSH1 CALLDATASIZE LT PUSH2 JUMPI PUSH4 PUSH29 PUSH1 CALLDATALOAD DIV AND PUSH4 DUP2 EQ PUSH2 JUMPI DUP1 PUSH4 EQ PUSH2 JUMPI DUP1 PUSH4 EQ P
+recomputed 1,200 contracts x 67 features in 32s
+released = affine(recomputed) exactly: 66/67 features
+constant across the sample (no test possible): 1 ['has_reentrancy_indicators']
+multi-label XGBoost: fit 56.0 s on 4 CPUs | predict 11,247 rows in 0.48 s | validation macro-F1 0.7653
+rows for both arms: train 89,973 | val 11,247
+[decoded] vocabulary 144 | fitted in 27s
+  encoded 89,973 | length median 3,659 | truncated at 20000: 0
+  encoded 11,247 | length median 3,651 | truncated at 20000: 0
+
+============================================================
+DL run: C2_dmodel_256_decoded
+============================================================
+  params=3.08M В· train=71979 val=17994
+/tmp/ipykernel_23/643123440.py:167: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(
+
+/tmp/ipykernel_23/643123440.py:167: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(
+  [ 1/20] tr=0.8940 vl=0.7999 f1=0.5105  
+  [ 2/20] tr=0.7535 vl=0.7410 f1=0.5437  
+  [ 3/20] tr=0.6894 vl=0.6726 f1=0.5759  
+  [ 4/20] tr=0.6001 vl=0.7569 f1=0.6079  
+  [ 5/20] tr=0.4926 vl=0.9390 f1=0.6118  
+  [ 6/20] tr=0.4031 vl=1.2281 f1=0.6447  
+  [ 7/20] tr=0.3232 vl=1.2246 f1=0.6434
+  [ 8/20] tr=0.2563 vl=1.5881 f1=0.6642  
+  [ 9/20] tr=0.2101 vl=1.8143 f1=0.6639
+  [10/20] tr=0.1660 vl=2.1018 f1=0.6718  
+  [11/20] tr=0.1283 vl=2.3474 f1=0.6771  
+  [12/20] tr=0.0904 vl=2.5316 f1=0.6753
+  [13/20] tr=0.0631 vl=2.7159 f1=0.6725
+  [14/20] tr=0.0397 vl=2.9680 f1=0.6757
+  [15/20] tr=0.0307 vl=3.2809 f1=0.6786  
+  [16/20] tr=0.0207 vl=3.3596 f1=0.6731
+  [17/20] tr=0.0173 vl=3.5806 f1=0.6741
+  [18/20] tr=0.0144 vl=3.5663 f1=0.6765
+  [19/20] tr=0.0121 vl=3.6153 f1=0.6770
+  [20/20] tr=0.0120 vl=3.7211 f1=0.6770
+  early stop after 20 epochs
+
+C2_dmodel_256_decoded: F1_ext=0.6841 В· 261.5 min
+[decoded] C2 validation macro-F1 0.6841 | best epoch 15 of 20 | 261.5 min
+[legacy] vocabulary 498 | fitted in 36s
+  encoded 89,973 | length median 8,803 | truncated at 20000: 11,920
+  encoded 11,247 | length median 8,786 | truncated at 20000: 1,460
+
+============================================================
+DL run: C2_dmodel_256_legacy
+============================================================
+  params=3.17M В· train=71979 val=17994
+/tmp/ipykernel_23/643123440.py:167: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(
+
+/tmp/ipykernel_23/643123440.py:167: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(
+  [ 1/20] tr=0.8967 vl=0.7140 f1=0.4805  
+  [ 2/20] tr=0.7400 vl=0.7132 f1=0.5336  
+  [ 3/20] tr=0.6816 vl=0.7363 f1=0.5872  
+  [ 4/20] tr=0.5289 vl=0.7693 f1=0.5817
+  [ 5/20] tr=0.3896 vl=1.1509 f1=0.6016  
+  [ 6/20] tr=0.3070 vl=1.1655 f1=0.6102  
+  [ 7/20] tr=0.2314 vl=1.5072 f1=0.6431  
+  [ 8/20] tr=0.1762 vl=1.7087 f1=0.6583  
+  [ 9/20] tr=0.1438 vl=2.0738 f1=0.6549
+  [10/20] tr=0.1032 vl=2.1890 f1=0.6668  
+  [11/20] tr=0.0726 vl=2.5754 f1=0.6601
+  [12/20] tr=0.0572 vl=2.6755 f1=0.6579
+  [13/20] tr=0.0326 vl=2.9505 f1=0.6573
+  [14/20] tr=0.0196 vl=3.2385 f1=0.6608
+  [15/20] tr=0.0142 vl=3.4363 f1=0.6584
+  early stop after 15 epochs
+
+C2_dmodel_256_legacy: F1_ext=0.6567 В· 198.7 min
+[legacy] C2 validation macro-F1 0.6567 | best epoch 10 of 15 | 198.7 min
+model                                       macro-F1   note
+------------------------------------------------------------------------
+XGBoost, this run (val)                       0.7653   fit 56 s on 4 CPUs
+XGBoost, released run (val)                   0.7518   reference
+C2 decoded opcodes, this run (val)            0.6841   261 min, 20 epochs
+C2 legacy tokens, this run (val)              0.6567   199 min, 15 epochs
+C2 legacy tokens, released run (val)          0.6578   reference
+
+written: ['c2_decoded.json', 'c2_legacy.json', 'feature_provenance.json', 'summary.json', 'xgb_timing.json']
+
+========================================================================
+every number this run contributes to the paper
+========================================================================
+  vDecodedVal          0.6841   cell 7, C2 on decoded opcodes, val_v2 macro-F1
+  vLegacyVal           0.6567   cell 8, same C2 on legacy tokens
+  vDecXgbVal           0.7653   cell 6, multi-label XGBoost, val_v2 macro-F1
+  vXgbFitS                 56   cell 6, wall clock of the XGBoost fit, seconds
+  vXgbCpus                  4   cell 6, CPU cores of this session
+  vDecodedMin             261   cell 7, GPU training minutes
+  vLegacyMin              199   cell 8, GPU training minutes
+  vDecGapAbs             2.74   decoded minus legacy, percentage points
+  vDecXgbGapAbs          8.12   XGBoost minus decoded, percentage points
+  vDecTrainRows        89,973   cell 7, contracts both arms trained on
+  vDecValRows          11,247   cell 7, contracts both arms scored on
+  vDecRowsPct          100.0%   cell 3, released rows whose bytecode was re-attached
+  vDecUpstream        120,608   cell 3, upstream contracts scanned
+  vDecVocab               144   cell 7, decoded-opcode vocabulary
+  vDecLenMed            3,700   cell 3, median decoded tokens per contract
+
+feature provenance (cell 4b): 66/67 released features are an exact affine image of the extractor's output on the re-attached bytecode
+reference points NOT recomputed here: {'legacy_C2_val_full_run_v12': 0.6578, 'xgb_val_full_run_v12': 0.7518, 'legacy_C2_test_paper': 0.6793}
+/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+  cells[i][c] = re.sub('\\\\\|', '|', cell)
+/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+[NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+[NbConvertApp] Writing 209790 bytes to __notebook__.ipynb
+[NbConvertApp] Converting notebook __notebook__.ipynb to html
+[NbConvertApp] Writing 719078 bytes to __results__.html

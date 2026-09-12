@@ -80,6 +80,20 @@ consumed a hexadecimal-character encoding of the bytecode rather than decoded
 opcodes; `results/full_run_v12/README.md` documents that finding and what it
 does and does not affect.
 
+## The Decoded-Opcode Run
+
+| | |
+|---|---|
+| Notebook | [`notebooks/decoded_opcodes_c2.ipynb`](notebooks/decoded_opcodes_c2.ipynb) and an [HTML copy](notebooks/decoded_opcodes_c2.html) |
+| Artifacts | [`results/decoded_c2/`](results/decoded_c2/README.md) |
+| Generator | `python scripts/build_decoded_notebook.py` rebuilds the unexecuted source |
+| Inputs | the released `train_v2`/`val_v2` parquet files, hashed against `manifest_v2.json`, plus the upstream corpus at a pinned commit |
+| Protocol | selection and early stopping on an internal carve-out of the training split; scores on validation; the test split is never opened, and the notebook asserts it |
+
+The notebook is self-contained: it embeds `src/dl_pipeline.py` and `src/evm_extractor.py`
+verbatim, so what ran is visible without leaving the document, and its last cell prints
+every number it contributes to the paper next to the cell that produced it.
+
 ## v1 Notebook (provenance only — numbers retracted)
 
 The v1 end-to-end run lives in the Kaggle notebook and its attached public

@@ -68,9 +68,12 @@ interval crosses zero. On the eight-class task, XGBoost (macro-$F_1$
 \vMlXgb) scores higher than every one of \vDlNConfigs{} Conv-Transformer
 configurations (best \vDlBest). A provenance audit found that the
 comparator's token sequences were produced by disassembling hexadecimal text
-without decoding it to bytes, so that negative result holds for that
-representation only, and the usual tabular-data explanation remains a
-hypothesis. We also measure what the earlier, text-deduplicated split
+without decoding it to bytes. Re-attaching the deployed bytecode from the
+upstream corpus and retraining the best configuration on properly decoded
+opcodes gives validation macro-$F_1$ \vDecodedVal{} against \vLegacyVal{} for
+the same configuration on the legacy tokens and \vDecXgbVal{} for XGBoost on
+the same split; the classical multi-label fit takes \vXgbFitS~s on
+\vXgbCpus{} CPU cores against \vDecodedMin~min of GPU time. We also measure what the earlier, text-deduplicated split
 leaked: \vLeakRate{} of its validation contracts had a feature-identical
 twin in training, rising to \vLeakWorstRate{} for \vLeakWorst.
 \end{abstract}
@@ -117,7 +120,9 @@ validation-selected thresholds before reference test evaluation.
 \textbf{(iii)~A deep-learning comparator under the same protocol:}
 \vDlNConfigs{} Conv-Transformer configurations, none of which scores higher
 than gradient boosting on any class, on a token representation we later
-found to be defective (Sec.~\ref{sec:methods}).
+found to be defective (Sec.~\ref{sec:methods}), together with a
+validation-level retraining of the best configuration on properly decoded
+opcodes (Sec.~\ref{sec:ml-v2}).
 
 \paragraph{Relation to an earlier version of this work.}
 An earlier preprint reported comparable headline numbers under a protocol we
@@ -141,11 +146,12 @@ are eliminated across partitions. On the eight-class task, classical gradient bo
 (\vMlXgb) beats every one of \vDlNConfigs{} deep configurations (best
 \vDlBest). A provenance
 audit shows that the deep comparator consumed a hexadecimal-character
-encoding of the bytecode rather than decoded opcodes.
-The negative deep-learning result is therefore a result about that
-representation; whether canonical opcode sequences change it is the question
-the next iteration is designed to answer, under a protocol that treats the
-present test split as already read.
+encoding of the bytecode rather than decoded opcodes, so the test-split
+result is a result about that representation.
+Retraining the best configuration on properly decoded opcodes, scored on
+the validation split, leaves gradient boosting ahead by
+\vDecXgbGapAbs~p.p.; a test-level confirmation needs a partition that
+excludes the present test split.
 
 The overlap audit shows why deduplication should be checked in the
 representation actually used by a model: different stored sequences can
@@ -164,7 +170,10 @@ split against \vDlBest{} in the reference, under last-epoch weights. It read
 the same test partition, so it is not a new untouched test, and both runs
 consumed the same legacy representation, so it corroborates the ordering
 rather than the explanation. It did not export raw final predictions, so its
-metrics are checked against saved records rather than recomputed. Exact refitting of the reference run is not claimed because fit-time
+metrics are checked against saved records rather than recomputed. A second
+executed notebook re-attaches the deployed bytecode from the upstream corpus
+and runs the decoded-opcode comparison and the classical timing of
+Sec.~\ref{sec:ml-v2}; it opens no test row. Exact refitting of the reference run is not claimed because fit-time
 environment and fitted XGBoost were not saved. The source corpus is Rossini's
 Slither-audited dataset~\cite{slitherAudited}; the deep-comparator ablation
 is logged in Weights~\&~Biases~\cite{wandb}. 
@@ -175,6 +184,8 @@ is logged in Weights~\&~Biases~\cite{wandb}.
 \item Reproduction: \url{https://www.kaggle.com/code/sergeisolovyev/sc-vuln-v2-reproduction}
 \item Executed run:
 \url{https://github.com/SergeySolovyev/smart-contract-vuln-detection-from-bytecode/tree/main/results/full_run_v12}
+\item Decoded-opcode run and classical timing:
+\url{https://github.com/SergeySolovyev/smart-contract-vuln-detection-from-bytecode/tree/main/results/decoded_c2}
 \end{itemize}
 
 \bibliographystyle{ICICPEtran}

@@ -1,0 +1,9 @@
+{
+  "rows": 1200,
+  "features_exact": 66,
+  "features_total": 67,
+  "features_constant_in_sample": [
+    "has_reentrancy_indicators"
+  ],
+  "features_not_affine": []
+}

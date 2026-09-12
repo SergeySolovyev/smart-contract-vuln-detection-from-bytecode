@@ -1,0 +1,26 @@
+{
+  "source": "kaggle_run.log",
+  "cap_tokens": 20000,
+  "decoded": {
+    "vocabulary": 144,
+    "train_rows": 89973,
+    "train_length_median": 3659,
+    "train_truncated": 0,
+    "train_truncated_pct": 0.0,
+    "val_rows": 11247,
+    "val_length_median": 3651,
+    "val_truncated": 0,
+    "val_truncated_pct": 0.0
+  },
+  "legacy": {
+    "vocabulary": 498,
+    "train_rows": 89973,
+    "train_length_median": 8803,
+    "train_truncated": 11920,
+    "train_truncated_pct": 13.25,
+    "val_rows": 11247,
+    "val_length_median": 8786,
+    "val_truncated": 1460,
+    "val_truncated_pct": 12.98
+  }
+}

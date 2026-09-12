@@ -1,0 +1,12 @@
+{
+  "model": "ML2_XGBoost",
+  "n_estimators": 400,
+  "max_depth": 8,
+  "fit_seconds": 55.99916155100004,
+  "predict_seconds_val": 0.48157430699995984,
+  "cpus": 4,
+  "platform": "Linux-6.12.90+-x86_64-with-glibc2.35",
+  "val_macro_f1": 0.765332290643284,
+  "train_rows": 89973,
+  "val_rows": 11247
+}

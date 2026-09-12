@@ -96,6 +96,27 @@ of verification. Tolerances are calibrated against measured cross-version
 noise (F1 reproduces to ~1e-5; threshold-sensitive components to <2e-3, while
 a wrong model specification moves them by >3e-3 and is caught).
 
+## The decoded-opcode run
+
+The pipeline above fed its deep comparator the hexadecimal *text* of each contract rather
+than the decoded bytes. The released rows keep only that text and it cannot be inverted,
+so a second executed notebook goes back to the upstream corpus, which still carries the
+deployed bytecode, re-attaches it to every released row by recomputing the converter's
+projection and matching it exactly, decodes it properly, and retrains the paper's best
+deep configuration on the result with the legacy tokens as the control. It also times the
+multi-label XGBoost fit the paper never timed, and checks that the released feature
+columns really describe these contracts.
+
+- Notebook, every output as produced:
+  [`notebooks/decoded_opcodes_c2.ipynb`](notebooks/decoded_opcodes_c2.ipynb)
+  ([nbviewer](https://nbviewer.org/github/SergeySolovyev/smart-contract-vuln-detection-from-bytecode/blob/main/notebooks/decoded_opcodes_c2.ipynb),
+  [HTML](notebooks/decoded_opcodes_c2.html))
+- Artifacts: [`results/decoded_c2/`](results/decoded_c2/README.md)
+- Generator: [`scripts/build_decoded_notebook.py`](scripts/build_decoded_notebook.py)
+
+Both runs are scored on the **validation** split. The test split was read once, under the
+protocol described in the paper, and is not reopened.
+
 ## The executed run, end to end
 
 The pipeline above produced the results in `results/`, but its fitted models
